@@ -148,6 +148,22 @@
       "createdAt": 1792748243856,
       "version": "c52776f1-1a84-47b9-b87f-81cbe9f68f68",
       "updatedAt": 1792748278594
+    },
+    {
+      "id": "9b268b0c-1635-4cd2-8706-ee4953c927e8",
+      "title": "第一次到地下停车场",
+      "date": "2026-08-07",
+      "category": "第一次",
+      "body": "第一次被老师拒绝掉，我以为我们的故事就结束啦，很伤心的去看了恐怖片刺激自己，但是老师这天刚好和朋友去唱歌喝了很多，跟老师晚上聊了很久很久",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/9b268b0c-1635-4cd2-8706-ee4953c927e8/a7799123-38f6-4b18-848f-2fdfbd7684d8.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/9b268b0c-1635-4cd2-8706-ee4953c927e8/4c0f8d2c-56b3-420d-82d5-6fdd4c55f0ba.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/9b268b0c-1635-4cd2-8706-ee4953c927e8/5f4ea4e1-fac3-4af2-b4d8-c2945846d95d.jpg"
+      ],
+      "createdAt": 1792748358111,
+      "version": "3cf4efca-d0b7-4968-8893-b893fc8f9717",
+      "updatedAt": 1792748393910
     }
   ]
 }
