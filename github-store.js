@@ -21,6 +21,7 @@ export class GitHubStore {
     return response.json();
   }
   async read(ref = BRANCH) {
+    if(ref === BRANCH && this.token) ref = (await this.request(`/git/ref/heads/${BRANCH}`)).object.sha;
     let response;
     try { response = await this.fetcher(`${RAW}/${encodeURIComponent(ref)}/${MANIFEST}?t=${Date.now()}`, {cache:'no-store'}); }
     catch { throw new StoreError('共享回忆暂时无法读取，请检查网络后刷新'); }
