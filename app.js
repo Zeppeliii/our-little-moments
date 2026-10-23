@@ -1,4 +1,4 @@
-import { CloudStore } from './shared-store.js';
+import { CloudStore } from './shared-store.js?v=worker-3';
 'use strict';
 const $ = (selector) => document.querySelector(selector);
 const categoryNames = {第一次:'01 第一次',心动回忆:'♡ 心动回忆',日常:'☀ 日常',纪念日:'🎀 纪念日'};
@@ -70,9 +70,9 @@ function render() {
   }); list.innerHTML = html + '</div>';
 }
 function renderPreviews() { $('#photo-preview').innerHTML = selectedPhotos.map((photo,index) => `<div class="preview-item"><img src="${escapeHTML(photo)}" alt="回忆照片 ${index+1}" data-preview="${index}"><button type="button" data-remove="${index}" aria-label="移除第 ${index+1} 张照片">×</button></div>`).join(''); }
-function openEditor(id) { if(saving) return toast('正在保存回忆，请稍后再试'); if(id && !ready) return toast(lastReadError || '正在读取这条回忆，请稍后重试'); const memory = memories.find(item => item.id === id); editingId = memory?.id || null; editingVersion = memory?.version || null; $('#memory-form').reset(); $('#event-title').value = memory?.title || ''; $('#event-date').value = memory?.date || localDate(); $('#event-category').value = memory?.category || newMemoryCategory(activeFilter); $('#event-body').value = memory?.body || ''; $('#event-place').value = memory?.place || ''; selectedPhotos = [...(memory?.photos || [])]; $('#editor-title').innerHTML = `${memory ? '重温这件小事' : '记一件小事'} <span class="pink">♡</span>`; renderPreviews(); $('#editor').showModal(); }
+function openEditor(id) { if(saving) return toast('正在保存回忆，请稍后再试'); if(id && !ready) return toast(lastReadError || '正在读取这条回忆，请稍后重试'); const memory = memories.find(item => item.id === id); editingId = memory?.id || null; editingVersion = memory?.version || null; $('#memory-form').reset(); $('#event-title').value = memory?.title || ''; $('#event-date').value = memory?.date || localDate(); $('#event-category').value = memory?.category || newMemoryCategory(activeFilter); $('#event-body').value = memory?.body || ''; $('#event-place').value = memory?.place || ''; selectedPhotos = [...(memory?.photos || [])]; $('#editor-title').innerHTML = `${memory ? '重温这件小事' : '记一件小事'} <span class="pink">♡</span>`; renderPreviews(); $('#save-status').hidden = true; $('#editor').showModal(); }
 function showPhoto(photo) { $('#viewer-image').src = photo; $('#viewer').showModal(); }
-async function preparePhoto(file) { if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) throw new Error('请选择 JPG、PNG、WebP 或 GIF 图片'); if(file.size > 30*1024*1024) throw new Error('单张照片请小于 30 MB'); const source = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); return new Promise((resolve,reject) => { const image = new Image(); image.onload = () => { const scale = Math.min(1,1800/Math.max(image.width,image.height)); const canvas = document.createElement('canvas'); canvas.width = Math.max(1,Math.round(image.width*scale)); canvas.height = Math.max(1,Math.round(image.height*scale)); const context = canvas.getContext('2d'); context.fillStyle = '#fff'; context.fillRect(0,0,canvas.width,canvas.height); context.drawImage(image,0,0,canvas.width,canvas.height); resolve(canvas.toDataURL('image/jpeg',.85)); }; image.onerror = () => reject(new Error('这张照片无法读取，请换一张试试')); image.src = source; }); }
+async function preparePhoto(file) { if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) throw new Error('请选择 JPG、PNG、WebP 或 GIF 图片'); if(file.size > 30*1024*1024) throw new Error('单张照片请小于 30 MB'); const source = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); return new Promise((resolve,reject) => { const image = new Image(); image.onload = () => { const scale = Math.min(1,1600/Math.max(image.width,image.height)); const canvas = document.createElement('canvas'); canvas.width = Math.max(1,Math.round(image.width*scale)); canvas.height = Math.max(1,Math.round(image.height*scale)); const context = canvas.getContext('2d'); context.fillStyle = '#fff'; context.fillRect(0,0,canvas.width,canvas.height); context.drawImage(image,0,0,canvas.width,canvas.height); let photo = canvas.toDataURL('image/jpeg',.8); if(photo.length > 950000) photo = canvas.toDataURL('image/jpeg',.6); resolve(photo); }; image.onerror = () => reject(new Error('这张照片无法读取，请换一张试试')); image.src = source; }); }
 ['#top-add','#hero-add','#section-add'].forEach(selector => $(selector).addEventListener('click', () => openEditor()));
 ['#editor-close','#editor-cancel'].forEach(selector => $(selector).addEventListener('click', () => { if (!processingPhotos && !saving) $('#editor').close(); }));
 $('#viewer-close').addEventListener('click', () => $('#viewer').close());
@@ -86,15 +86,20 @@ $('#memory-form').addEventListener('submit', async event => {
   const title = $('#event-title').value.trim(); const date = $('#event-date').value;
   if(!title || !validDate(date)) return toast('请填写回忆的名字和有效日期');
   const existing = memories.find(memory => memory.id === editingId);
-  const memory = {id:editingId || crypto.randomUUID(),title,date,category:$('#event-category').value,body:$('#event-body').value.trim(),place:$('#event-place').value.trim(),photos:[...selectedPhotos],createdAt:existing?.createdAt || Date.now()};
+  editingId ||= crypto.randomUUID();
+  const memory = {id:editingId,title,date,category:$('#event-category').value,body:$('#event-body').value.trim(),place:$('#event-place').value.trim(),photos:[...selectedPhotos],createdAt:existing?.createdAt || Date.now()};
+  $('#save-status').hidden = false; $('#save-status').textContent = '正在连接共享手账…';
   saving = true; $('#save-button').disabled = true; $('#save-button').textContent = '正在收藏到共享手账…'; $('#event-photos').disabled = true;
   try {
-    const data = await store.publish(memory, editingVersion);
+    const data = await store.publish(memory, editingVersion, progress => {
+      const message = progress.phase === 'saving' ? '照片已上传，正在保存回忆…' : `正在上传回忆与照片 ${progress.percent}%`;
+      $('#save-button').textContent = message; $('#save-status').textContent = message;
+    });
     dataRevision++; ready = true; lastReadError = '';
     memories = data.memories; updateLocalMigration(); render(); $('#editor').close();
     $('#sync-status').textContent = '♡ 已保存到共享手账 · 另一边刷新就能看到';
     toast(existing ? '共享回忆已更新 ♡' : '已收藏，另一边也能看到这段回忆了 ♡');
-  } catch(error) { toast(error.message); }
+  } catch(error) { $('#save-status').textContent = error.message; toast(error.message); }
   finally { saving = false; $('#save-button').disabled = false; $('#save-button').textContent = '收藏这段回忆 ♡'; $('#event-photos').disabled = false; }
 });
 async function removeMemory(memory) {
