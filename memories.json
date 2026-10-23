@@ -31,6 +31,20 @@
       "createdAt": 1792747498161,
       "version": "d0578aef-9482-433a-82af-d27edb8ae3e2",
       "updatedAt": 1792747533671
+    },
+    {
+      "id": "7a467507-62ea-4937-890c-7597f501c75e",
+      "title": "照片",
+      "date": "2026-07-04",
+      "category": "心动回忆",
+      "body": "那天看完演出，看到老师连给我发两条日常，超级开心",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/7a467507-62ea-4937-890c-7597f501c75e/ec4b8ead-5f1e-4cf9-b2aa-dc1a7f81b434.jpg"
+      ],
+      "createdAt": 1792747622709,
+      "version": "d9a3b64f-6ceb-4bdf-a5c9-b2dff1c24474",
+      "updatedAt": 1792747657718
     }
   ]
 }
