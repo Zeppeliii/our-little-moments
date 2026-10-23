@@ -243,6 +243,20 @@
       "createdAt": 1792749468520,
       "version": "77ad8eb3-510c-4619-9fa3-609e4963746b",
       "updatedAt": 1792749503376
+    },
+    {
+      "id": "417514b8-3468-4b16-9bf6-62c7ea51a590",
+      "title": "第一次抱抱",
+      "date": "2026-09-11",
+      "category": "第一次",
+      "body": "喝完酒送老师回家，鼓起勇气问老师要了抱抱",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/417514b8-3468-4b16-9bf6-62c7ea51a590/8788d1cf-d82e-49de-aa19-5efaf2b79f6b.jpg"
+      ],
+      "createdAt": 1792749623740,
+      "version": "de35e11f-165d-47c9-aae3-d4a8e25776d8",
+      "updatedAt": 1792749659477
     }
   ]
 }
