@@ -45,6 +45,20 @@
       "createdAt": 1792747622709,
       "version": "d9a3b64f-6ceb-4bdf-a5c9-b2dff1c24474",
       "updatedAt": 1792747657718
+    },
+    {
+      "id": "af737616-8702-4e78-9952-37bda1fbf4f4",
+      "title": "第一次给我发自拍",
+      "date": "2026-07-04",
+      "category": "第一次",
+      "body": "完全美女！",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/af737616-8702-4e78-9952-37bda1fbf4f4/dc4697f5-3b09-4390-a077-7dbe29988017.jpg"
+      ],
+      "createdAt": 1792747698912,
+      "version": "f752b0bb-76fd-4e7b-9ff9-d733ad65d695",
+      "updatedAt": 1792747733388
     }
   ]
 }
