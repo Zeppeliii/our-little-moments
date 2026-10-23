@@ -3,17 +3,18 @@
   "memories": [
     {
       "id": "e32959f8-d22f-4553-9610-21347568a6e6",
-      "title": "功能测试（稍后删除）",
+      "title": "功能测试（已修改，稍后删除）",
       "date": "2026-10-23",
-      "category": "日常",
-      "body": "临时测试照片上传、跨页面同步、修改和删除。",
+      "category": "心动回忆",
+      "body": "修改与追加照片测试：完成后移除这条测试回忆。",
       "place": "",
       "photos": [
-        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/e32959f8-d22f-4553-9610-21347568a6e6/05d12b16-5f1e-43ba-ba26-346717062961.jpg"
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/e32959f8-d22f-4553-9610-21347568a6e6/05d12b16-5f1e-43ba-ba26-346717062961.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/e32959f8-d22f-4553-9610-21347568a6e6/1d642011-cd2b-4288-836a-dad87a0e6ec8.jpg"
       ],
       "createdAt": 1792744487988,
-      "version": "56f4281c-03d4-4704-bc14-15289f273785",
-      "updatedAt": 1792744532295
+      "version": "e31624f6-cd4c-45a2-a209-a79ec4eb3316",
+      "updatedAt": 1792744826501
     }
   ]
 }
