@@ -8,3 +8,6 @@
 .wrangler/
 node_modules/
 worker-bundle.js
+
+# 本机 Netlify 配置
+.netlify
