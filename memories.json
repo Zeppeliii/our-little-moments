@@ -257,6 +257,22 @@
       "createdAt": 1792749623740,
       "version": "de35e11f-165d-47c9-aae3-d4a8e25776d8",
       "updatedAt": 1792749659477
+    },
+    {
+      "id": "665295d5-d645-4c21-b81d-c16cbc50f016",
+      "title": "我们在一起啦！",
+      "date": "2026-09-25",
+      "category": "纪念日",
+      "body": "前一天老师想了很多给我说让我以为我们就要结束啦，然后我以为自己能接受结果根本不行，马上开车到老师楼下说了很多。第二天起得很早给老师送花花，第一次给女生送花，我们正式在一起啦！",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/665295d5-d645-4c21-b81d-c16cbc50f016/5626b9c8-0e92-413b-ab62-6034f8810a89.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/665295d5-d645-4c21-b81d-c16cbc50f016/42421acc-30b4-4140-b218-36bfe664517f.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/665295d5-d645-4c21-b81d-c16cbc50f016/5807c302-2eae-44fb-9934-cdb86aa797b9.jpg"
+      ],
+      "createdAt": 1792750089125,
+      "version": "9b62bcc7-a308-4bc9-ae86-0e53781bff7a",
+      "updatedAt": 1792750124560
     }
   ]
 }
