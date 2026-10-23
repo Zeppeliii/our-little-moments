@@ -11,7 +11,7 @@ function newMemoryCategory(filter) { return Object.hasOwn(categoryNames, filter)
 let memories = [], selectedPhotos = [], editingId = null, activeFilter = '全部', toastTimer;
 const store = new CloudStore();
 let ready = false, reading = false, saving = false, lastReadError = '', lastReadAt = 0, localMemories = [];
-let editingVersion = null;
+let editingVersion = null, dataRevision = 0;
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3600); }
 function localDate() { const date = new Date(); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; }
@@ -23,14 +23,17 @@ function updateLocalMigration() {
 }
 async function refresh({quiet = false} = {}) {
   if(reading || saving) return;
+  const revision = dataRevision;
   reading = true; $('#sync-refresh').disabled = true;
   if(!quiet) $('#sync-status').textContent = '正在读取共享回忆…';
   try {
     const data = await store.read();
+    if(revision !== dataRevision) return;
     memories = data.memories; ready = true; lastReadError = ''; lastReadAt = Date.now();
     $('#sync-status').textContent = '♡ 共享回忆已更新 · 两边都能看到';
     updateLocalMigration(); render();
   } catch(error) {
+    if(revision !== dataRevision) return;
     lastReadError = error.message;
     $('#sync-status').textContent = '暂时无法更新，请检查网络后重试';
     if(!quiet) toast(error.message);
@@ -67,7 +70,7 @@ function render() {
   }); list.innerHTML = html + '</div>';
 }
 function renderPreviews() { $('#photo-preview').innerHTML = selectedPhotos.map((photo,index) => `<div class="preview-item"><img src="${escapeHTML(photo)}" alt="回忆照片 ${index+1}" data-preview="${index}"><button type="button" data-remove="${index}" aria-label="移除第 ${index+1} 张照片">×</button></div>`).join(''); }
-function openEditor(id) { if(!ready || reading || saving) return toast('共享手账正在准备，请稍后再试'); const memory = memories.find(item => item.id === id); editingId = memory?.id || null; editingVersion = memory?.version || null; $('#memory-form').reset(); $('#event-title').value = memory?.title || ''; $('#event-date').value = memory?.date || localDate(); $('#event-category').value = memory?.category || newMemoryCategory(activeFilter); $('#event-body').value = memory?.body || ''; $('#event-place').value = memory?.place || ''; selectedPhotos = [...(memory?.photos || [])]; $('#editor-title').innerHTML = `${memory ? '重温这件小事' : '记一件小事'} <span class="pink">♡</span>`; renderPreviews(); $('#editor').showModal(); }
+function openEditor(id) { if(saving) return toast('正在保存回忆，请稍后再试'); if(id && !ready) return toast(lastReadError || '正在读取这条回忆，请稍后重试'); const memory = memories.find(item => item.id === id); editingId = memory?.id || null; editingVersion = memory?.version || null; $('#memory-form').reset(); $('#event-title').value = memory?.title || ''; $('#event-date').value = memory?.date || localDate(); $('#event-category').value = memory?.category || newMemoryCategory(activeFilter); $('#event-body').value = memory?.body || ''; $('#event-place').value = memory?.place || ''; selectedPhotos = [...(memory?.photos || [])]; $('#editor-title').innerHTML = `${memory ? '重温这件小事' : '记一件小事'} <span class="pink">♡</span>`; renderPreviews(); $('#editor').showModal(); }
 function showPhoto(photo) { $('#viewer-image').src = photo; $('#viewer').showModal(); }
 async function preparePhoto(file) { if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) throw new Error('请选择 JPG、PNG、WebP 或 GIF 图片'); if(file.size > 30*1024*1024) throw new Error('单张照片请小于 30 MB'); const source = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); return new Promise((resolve,reject) => { const image = new Image(); image.onload = () => { const scale = Math.min(1,1800/Math.max(image.width,image.height)); const canvas = document.createElement('canvas'); canvas.width = Math.max(1,Math.round(image.width*scale)); canvas.height = Math.max(1,Math.round(image.height*scale)); const context = canvas.getContext('2d'); context.fillStyle = '#fff'; context.fillRect(0,0,canvas.width,canvas.height); context.drawImage(image,0,0,canvas.width,canvas.height); resolve(canvas.toDataURL('image/jpeg',.85)); }; image.onerror = () => reject(new Error('这张照片无法读取，请换一张试试')); image.src = source; }); }
 ['#top-add','#hero-add','#section-add'].forEach(selector => $(selector).addEventListener('click', () => openEditor()));
@@ -87,6 +90,7 @@ $('#memory-form').addEventListener('submit', async event => {
   saving = true; $('#save-button').disabled = true; $('#save-button').textContent = '正在收藏到共享手账…'; $('#event-photos').disabled = true;
   try {
     const data = await store.publish(memory, editingVersion);
+    dataRevision++; ready = true; lastReadError = '';
     memories = data.memories; updateLocalMigration(); render(); $('#editor').close();
     $('#sync-status').textContent = '♡ 已保存到共享手账 · 另一边刷新就能看到';
     toast(existing ? '共享回忆已更新 ♡' : '已收藏，另一边也能看到这段回忆了 ♡');
@@ -97,7 +101,7 @@ async function removeMemory(memory) {
   if(saving) return;
   if(!confirm(`确定从共享手账移除「${memory.title}」吗？两边将不再显示这条回忆。公开过的文件仍可能保留在 GitHub 历史版本中。`)) return;
   saving = true; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = true);
-  try { const data = await store.remove(memory.id,memory.version); memories = data.memories; render(); updateLocalMigration(); toast('已从共享手账移除'); }
+  try { const data = await store.remove(memory.id,memory.version); dataRevision++; memories = data.memories; render(); updateLocalMigration(); toast('已从共享手账移除'); }
   catch(error) { toast(error.message); }
   finally { saving = false; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = false); }
 }
@@ -115,7 +119,7 @@ async function publishLocal() {
   try {
     for(const [index,memory] of pending.entries()) {
       $('#sync-status').textContent = `正在公开本机回忆 ${index+1} / ${pending.length}…`;
-      const data = await store.publish(memory,null); memories = data.memories; render(); updateLocalMigration();
+      const data = await store.publish(memory,null); dataRevision++; memories = data.memories; render(); updateLocalMigration();
     }
     $('#sync-status').textContent = '♡ 本机回忆已公开到共享手账'; toast('两边现在都可以看到这些回忆了 ♡');
   } catch(error) { toast(error.message); }
