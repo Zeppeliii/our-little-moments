@@ -1,13 +1,13 @@
 import {StoreError, validateDraft, validateManifest} from './memory-model.js';
 import {uploadRequest} from './upload-request.js';
-import {WORKER_URL} from './site-config.js';
+import {WORKER_URL} from './site-config.js?v=netlify-1';
 
 export class CloudStore {
   constructor({url = WORKER_URL, fetcher = (...args) => fetch(...args)} = {}) { this.url = url.replace(/\/$/,''); this.fetcher = fetcher; }
   async request(path, {method = 'GET',body,onProgress} = {}) {
     if(!this.url) throw new StoreError('共享保存服务尚未配置完成，请稍后再试');
     const serialized = body ? JSON.stringify(body) : undefined;
-    if(serialized && new TextEncoder().encode(serialized).length > 16 * 1024 * 1024) throw new StoreError('本次照片较大，请减少照片张数后再保存');
+    if(serialized && new TextEncoder().encode(serialized).length > 5 * 1024 * 1024) throw new StoreError('本次照片较大，请减少照片张数后再保存');
     let response;
     try {
       if(body && typeof XMLHttpRequest === 'function') response = await uploadRequest(`${this.url}${path}`,{method,body:serialized,onProgress});

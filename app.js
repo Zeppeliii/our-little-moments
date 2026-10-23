@@ -1,4 +1,4 @@
-import { CloudStore } from './shared-store.js?v=worker-3';
+import { CloudStore } from './shared-store.js?v=netlify-1';
 'use strict';
 const $ = (selector) => document.querySelector(selector);
 const categoryNames = {第一次:'01 第一次',心动回忆:'♡ 心动回忆',日常:'☀ 日常',纪念日:'🎀 纪念日'};

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {GitHubStore} from './github-store.js';
+import {CloudStore} from './shared-store.js';
 import {validateManifest} from './memory-model.js';
 const id = '11111111-1111-4111-8111-111111111111';
 const version = '22222222-2222-4222-8222-222222222222';
@@ -8,6 +9,14 @@ const otherId = '33333333-3333-4333-8333-333333333333';
 const uuid = () => '44444444-4444-4444-8444-444444444444';
 const memory = (extra = {}) => ({id,title:'第一次一起散步',date:'2026-10-23',category:'第一次',body:'那天晚风很温柔',place:'',photos:[],createdAt:1,version,...extra});
 const response = (data,status=200) => ({ok:status>=200&&status<300,status,json:async()=>data});
+test('超过托管平台容量的照片在上传前明确提示，避免平台直接拒绝',async()=>{
+ let calls=0;
+ const store=new CloudStore({fetcher:async()=>{calls++;return response({version:1,memories:[]});}});
+ await assert.rejects(store.request('/memories',{method:'POST',body:{photo:'a'.repeat(5*1024*1024)}}),/减少照片张数/);
+ assert.equal(calls,0);
+ await store.request('/memories',{method:'POST',body:{photo:'a'.repeat(5*1024*1024-100)}});
+ assert.equal(calls,1);
+});
 function fixture({records=[],refFailure=false}={}) {
   const calls=[]; let refs=0;
   const fetcher=async(url,options={}) => {
