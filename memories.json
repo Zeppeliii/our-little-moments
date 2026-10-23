@@ -1,4 +1,19 @@
 {
   "version": 1,
-  "memories": []
+  "memories": [
+    {
+      "id": "e32959f8-d22f-4553-9610-21347568a6e6",
+      "title": "功能测试（稍后删除）",
+      "date": "2026-10-23",
+      "category": "日常",
+      "body": "临时测试照片上传、跨页面同步、修改和删除。",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/e32959f8-d22f-4553-9610-21347568a6e6/05d12b16-5f1e-43ba-ba26-346717062961.jpg"
+      ],
+      "createdAt": 1792744487988,
+      "version": "56f4281c-03d4-4704-bc14-15289f273785",
+      "updatedAt": 1792744532295
+    }
+  ]
 }
