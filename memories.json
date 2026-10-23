@@ -180,6 +180,25 @@
       "createdAt": 1792748441256,
       "version": "a6ee4a59-90b8-46ac-a4c4-2395444d4feb",
       "updatedAt": 1792748476430
+    },
+    {
+      "id": "c58546d5-17e3-4ed9-828e-ea6a6357576e",
+      "title": "第一次喝酒",
+      "date": "2026-08-29",
+      "category": "第一次",
+      "body": "老师终于答应我一起去聊天喝酒了，这天还给老师买了蛋白粉，晚上虽然一开始有点尴尬，但是后面气氛还是很好，然后老师就被僵尸搞醉了哈哈哈哈",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/c58546d5-17e3-4ed9-828e-ea6a6357576e/36121f98-6d51-4339-b463-1132f93b745c.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/c58546d5-17e3-4ed9-828e-ea6a6357576e/a2d50752-7a6d-4aa3-9fd9-c80c3c3f2931.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/c58546d5-17e3-4ed9-828e-ea6a6357576e/b254d0b2-5be1-4848-83cd-d38400ccde04.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/c58546d5-17e3-4ed9-828e-ea6a6357576e/d27f6bbd-545b-45df-8907-26e21210cd7a.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/c58546d5-17e3-4ed9-828e-ea6a6357576e/038d038e-d8da-4b89-9589-e06161195ad5.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/c58546d5-17e3-4ed9-828e-ea6a6357576e/7a81fc79-9c00-4474-8a5e-cdc9b987ccf8.jpg"
+      ],
+      "createdAt": 1792748791730,
+      "version": "d3faa6e2-ef4d-4d02-8b04-df53065db735",
+      "updatedAt": 1792748827686
     }
   ]
 }
