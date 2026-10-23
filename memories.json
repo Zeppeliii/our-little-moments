@@ -273,6 +273,20 @@
       "createdAt": 1792747801855,
       "version": "d8c7d0b6-e2a2-44db-8506-11c87226cde7",
       "updatedAt": 1792750412981
+    },
+    {
+      "id": "ec27d604-480a-484c-836c-813590037411",
+      "title": "第一张拍立得",
+      "date": "2026-10-04",
+      "category": "第一次",
+      "body": "现在很难过，那个时候还是很开心滴",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/ec27d604-480a-484c-836c-813590037411/92df1a56-4c5e-4b66-9007-071909c5ccd3.jpg"
+      ],
+      "createdAt": 1792771488905,
+      "version": "8f781e84-17fd-4801-8aa8-a456cbf0ce75",
+      "updatedAt": 1792771530752
     }
   ]
 }
