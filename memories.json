@@ -1,4 +1,19 @@
 {
   "version": 1,
-  "memories": []
+  "memories": [
+    {
+      "id": "d41e6462-8645-4650-a5e9-6ab7dfbf79d2",
+      "title": "第一次聊天",
+      "date": "2026-07-02",
+      "category": "第一次",
+      "body": "梦开始",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/d41e6462-8645-4650-a5e9-6ab7dfbf79d2/23b68541-21df-4e91-9d28-caa758eaff23.jpg"
+      ],
+      "createdAt": 1792747320937,
+      "version": "99146c62-29be-41e1-b897-8e2c04f3cb42",
+      "updatedAt": 1792747355770
+    }
+  ]
 }
