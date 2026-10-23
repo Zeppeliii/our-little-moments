@@ -199,6 +199,21 @@
       "createdAt": 1792748791730,
       "version": "d3faa6e2-ef4d-4d02-8b04-df53065db735",
       "updatedAt": 1792748827686
+    },
+    {
+      "id": "f4c21519-71e7-456a-87ae-0a34126276b5",
+      "title": "完全击中",
+      "date": "2026-09-04",
+      "category": "心动回忆",
+      "body": "第一次被老师表明心意",
+      "place": "",
+      "photos": [
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/f4c21519-71e7-456a-87ae-0a34126276b5/7d1e9983-a7d1-4481-8024-faf1a89617b7.jpg",
+        "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/f4c21519-71e7-456a-87ae-0a34126276b5/79ead283-107f-4512-9a2e-9f9dd1c949b8.jpg"
+      ],
+      "createdAt": 1792749130823,
+      "version": "28dfdd5b-1d34-4961-9e97-1347bcd87098",
+      "updatedAt": 1792749165588
     }
   ]
 }
