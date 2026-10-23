@@ -1,95 +1,21 @@
-const OWNER = 'Zeppeliii';
-const REPO = 'our-little-moments';
-const BRANCH = 'main';
-const MANIFEST = 'memories.json';
-const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
-const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}`;
-const PHOTO_PATH = /^data\/photos\/[a-f0-9-]{36}\/[a-f0-9-]{36}\.jpg$/;
-const DATA_PHOTO = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/;
-const ID = /^[a-f0-9-]{36}$/;
-const CATEGORIES = ['第一次','心动回忆','日常','纪念日'];
-export class StoreError extends Error {
-  constructor(message, status = 0) { super(message); this.status = status; }
-}
-function photoPath(photo) {
-  const prefix = `${RAW}/${BRANCH}/`;
-  return typeof photo === 'string' && photo.startsWith(prefix) && PHOTO_PATH.test(photo.slice(prefix.length)) ? photo.slice(prefix.length) : null;
-}
-export function validateManifest(data) {
-  if (!data || data.version !== 1 || !Array.isArray(data.memories)) throw new StoreError('共享记录格式不正确，请先检查仓库数据');
-  const ids = new Set();
-  for (const memory of data.memories) {
-    if (!memory || !ID.test(memory.id) || ids.has(memory.id) || typeof memory.title !== 'string' || !memory.title.trim() || memory.title.length > 80 || !CATEGORIES.includes(memory.category) || !/^\d{4}-\d{2}-\d{2}$/.test(memory.date) || typeof memory.body !== 'string' || memory.body.length > 10000 || typeof memory.place !== 'string' || memory.place.length > 100 || !Number.isFinite(memory.createdAt) || !ID.test(memory.version) || !Array.isArray(memory.photos) || memory.photos.length > 12 || !memory.photos.every(photo => photoPath(photo))) throw new StoreError('共享记录格式不正确，请先检查仓库数据');
-    ids.add(memory.id);
-  }
-  return data;
-}
-export class GitHubStore {
-  constructor({fetcher = (...args) => fetch(...args), uuid = () => crypto.randomUUID()} = {}) { this.fetcher = fetcher; this.uuid = uuid; this.token = ''; }
-  disconnect() { this.token = ''; }
-  get connected() { return Boolean(this.token); }
-  async request(path, {method = 'GET', body, token = this.token} = {}) {
+import {StoreError, validateDraft, validateManifest} from './memory-model.js';
+import {WORKER_URL} from './site-config.js';
+
+export class CloudStore {
+  constructor({url = WORKER_URL, fetcher = (...args) => fetch(...args)} = {}) { this.url = url.replace(/\/$/,''); this.fetcher = fetcher; }
+  async request(path, {method = 'GET',body} = {}) {
+    if(!this.url) throw new StoreError('共享保存服务尚未配置完成，请稍后再试');
+    const serialized = body ? JSON.stringify(body) : undefined;
+    if(serialized && new TextEncoder().encode(serialized).length > 16 * 1024 * 1024) throw new StoreError('本次照片较大，请减少照片张数后再保存');
     let response;
-    try { response = await this.fetcher(`${API}${path}`, {method, headers:{Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(token ? {Authorization:`Bearer ${token}`} : {}),...(body ? {'Content-Type':'application/json'} : {})}, ...(body ? {body:JSON.stringify(body)} : {}), cache:'no-store'}); }
-    catch { throw new StoreError('网络连接失败，请保留当前内容并稍后重试'); }
-    if (!response.ok) {
-      const messages = {401:'GitHub 授权已失效，请重新连接',403:'GitHub 权限不足或请求过于频繁，请检查此仓库的 Contents 读写权限后重试',404:'未找到仓库或文件，请检查仓库授权',409:'共享记录刚刚发生变化，请稍后重试',422:'共享记录刚刚发生变化，请稍后重试'};
-      throw new StoreError(messages[response.status] || 'GitHub 保存失败，请保留当前内容并稍后重试',response.status);
-    }
-    return response.json();
-  }
-  async connect(token) {
-    const candidate = token.trim();
-    if (!candidate) throw new StoreError('请先填写 GitHub 授权令牌');
-    const repo = await this.request('', {token:candidate});
-    if (repo.default_branch !== BRANCH || !repo.permissions?.push) throw new StoreError('此账号需要有手账仓库的写入权限');
-    this.token = candidate;
-  }
-  async read(ref = BRANCH) {
-    let response;
-    try { response = await this.fetcher(`${RAW}/${encodeURIComponent(ref)}/${MANIFEST}?t=${Date.now()}`, {cache:'no-store'}); }
-    catch { throw new StoreError('共享回忆暂时无法读取，请检查网络后刷新'); }
-    if (!response.ok) throw new StoreError('共享回忆暂时无法读取，请检查网络后刷新',response.status);
+    try { response = await this.fetcher(`${this.url}${path}`,{method,headers:body?{'Content-Type':'application/json'}:{},body:serialized,cache:'no-store',signal:AbortSignal.timeout(90000)}); }
+    catch { throw new StoreError('连接共享手账超时或网络不可用，请保留内容，稍后刷新确认是否保存'); }
     let data;
-    try { data = await response.json(); } catch { throw new StoreError('共享记录格式不正确，请先检查仓库数据'); }
+    try { data = await response.json(); } catch { throw new StoreError('共享手账暂时无法连接，请稍后再试'); }
+    if(!response.ok) throw new StoreError(data.error || '保存暂时失败，请保留内容并稍后重试',response.status);
     return validateManifest(data);
   }
-  async publish(memory, expectedVersion = null) { return this.mutate(memory.id, memory, expectedVersion); }
-  async remove(id, expectedVersion) { return this.mutate(id, null, expectedVersion); }
-  async mutate(id, memory, expectedVersion) {
-    if (!this.connected) throw new StoreError('请先连接 GitHub，再保存共享回忆');
-    if (!ID.test(id)) throw new StoreError('回忆编号无效');
-    const prepared = memory ? {...memory,version:this.uuid(),updatedAt:Date.now(),photos:[]} : null;
-    const photoEntries = [];
-    if (memory) {
-      for (const photo of memory.photos) {
-        const existingPath = photoPath(photo);
-        if (existingPath) { prepared.photos.push(photo); continue; }
-        const match = typeof photo === 'string' && photo.match(DATA_PHOTO);
-        if (!match) throw new StoreError('照片格式不正确，请重新选择照片');
-        const path = `data/photos/${id}/${this.uuid()}.jpg`;
-        const blob = await this.request('/git/blobs', {method:'POST',body:{content:match[1],encoding:'base64'}});
-        photoEntries.push({path,mode:'100644',type:'blob',sha:blob.sha});
-        prepared.photos.push(`${RAW}/${BRANCH}/${path}`);
-      }
-      validateManifest({version:1,memories:[prepared]});
-    }
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const ref = await this.request(`/git/ref/heads/${BRANCH}`);
-      const commit = await this.request(`/git/commits/${ref.object.sha}`);
-      const data = await this.read(ref.object.sha);
-      const previous = data.memories.find(item => item.id === id);
-      if ((previous?.version || null) !== expectedVersion) throw new StoreError('这条回忆已在另一边修改，请先关闭编辑、刷新后再修改');
-      if (!memory && !previous) throw new StoreError('这条回忆已经被移除，请刷新页面');
-      const next = data.memories.filter(item => item.id !== id);
-      if (prepared) next.push(prepared);
-      const removedPhotos = (previous?.photos || []).filter(photo => !prepared?.photos.includes(photo)).map(photo => ({path:photoPath(photo),mode:'100644',type:'blob',sha:null}));
-      const tree = await this.request('/git/trees', {method:'POST',body:{base_tree:commit.tree.sha,tree:[...photoEntries,...removedPhotos,{path:MANIFEST,mode:'100644',type:'blob',content:JSON.stringify({version:1,memories:next},null,2)}]}});
-      const created = await this.request('/git/commits', {method:'POST',body:{message:memory ? `${previous ? '更新' : '收藏'}回忆：${memory.title}` : `移除回忆：${previous.title}`,tree:tree.sha,parents:[ref.object.sha]}});
-      try {
-        await this.request(`/git/refs/heads/${BRANCH}`, {method:'PATCH',body:{sha:created.sha,force:false}});
-        return {version:1,memories:next};
-      } catch (error) { if (![409,422].includes(error.status) || attempt === 2) throw error; }
-    }
-  }
+  async read() { return this.request('/memories'); }
+  async publish(memory, expectedVersion = null) { validateDraft(memory); return this.request('/memories',{method:'POST',body:{memory,expectedVersion}}); }
+  async remove(id, expectedVersion) { return this.request(`/memories/${encodeURIComponent(id)}`,{method:'DELETE',body:{expectedVersion}}); }
 }

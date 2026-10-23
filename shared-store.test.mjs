@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GitHubStore,validateManifest} from './shared-store.js';
+import {GitHubStore} from './github-store.js';
+import {validateManifest} from './memory-model.js';
 const id = '11111111-1111-4111-8111-111111111111';
 const version = '22222222-2222-4222-8222-222222222222';
 const otherId = '33333333-3333-4333-8333-333333333333';
@@ -27,7 +28,7 @@ test('未授权时禁止保存，读取不发送令牌',async()=>{
   assert.equal(calls.length,1); assert.equal(calls[0].options.headers,undefined);
 });
 test('文字与图片先组装同一棵树，最后一次更新主分支',async()=>{
-  const {store,calls}=fixture(); await store.connect('test-token');
+  const {store,calls}=fixture(); store.token='test-token';
   const result=await store.publish(memory({photos:['data:image/jpeg;base64,YWJj']}),null);
   assert.equal(result.memories.length,1); assert.match(result.memories[0].photos[0],/raw.githubusercontent.com/);
   const tree=calls.find(call=>call.url.endsWith('/git/trees')).body;
@@ -38,19 +39,19 @@ test('文字与图片先组装同一棵树，最后一次更新主分支',async(
   assert.equal(calls.filter(call=>call.url.includes('raw.githubusercontent.com')).every(call=>!call.options.headers),true);
 });
 test('同一条回忆被另一边编辑后禁止覆盖',async()=>{
-  const {store,calls}=fixture({records:[memory()]}); await store.connect('test-token');
+  const {store,calls}=fixture({records:[memory()]}); store.token='test-token';
   await assert.rejects(store.publish(memory(),otherId),/另一边修改/);
   assert.equal(calls.some(call=>call.url.endsWith('/git/trees')),false);
 });
 test('更新主分支冲突后重试，保留另一边新添加的回忆',async()=>{
-  const {store,calls}=fixture({refFailure:true}); await store.connect('test-token');
+  const {store,calls}=fixture({refFailure:true}); store.token='test-token';
   const result=await store.publish(memory(),null);
   assert.equal(result.memories.length,2); assert.equal(result.memories.some(item=>item.id===otherId),true);
   assert.equal(calls.filter(call=>call.url.endsWith('/git/refs/heads/main')).length,2);
 });
 test('移除回忆时同时移除当前版本的照片引用',async()=>{
   const photo=`https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/photos/${id}/${version}.jpg`;
-  const {store,calls}=fixture({records:[memory({photos:[photo]})]}); await store.connect('test-token');
+  const {store,calls}=fixture({records:[memory({photos:[photo]})]}); store.token='test-token';
   const result=await store.remove(id,version); assert.equal(result.memories.length,0);
   const tree=calls.find(call=>call.url.endsWith('/git/trees')).body.tree;
   assert.equal(tree[0].sha,null); assert.match(tree[0].path,/data\/photos/);

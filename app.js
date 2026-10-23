@@ -1,4 +1,4 @@
-import { GitHubStore } from './shared-store.js';
+import { CloudStore } from './shared-store.js';
 'use strict';
 const $ = (selector) => document.querySelector(selector);
 const categoryNames = {第一次:'01 第一次',心动回忆:'♡ 心动回忆',日常:'☀ 日常',纪念日:'🎀 纪念日'};
@@ -9,14 +9,13 @@ function normalizeCategory(category) {
 }
 function newMemoryCategory(filter) { return Object.hasOwn(categoryNames, filter) ? filter : '日常'; }
 let memories = [], selectedPhotos = [], editingId = null, activeFilter = '全部', toastTimer;
-const store = new GitHubStore();
-let ready = false, reading = false, saving = false, lastReadError = '', lastReadAt = 0, pendingAction = null, localMemories = [];
+const store = new CloudStore();
+let ready = false, reading = false, saving = false, lastReadError = '', lastReadAt = 0, localMemories = [];
 let editingVersion = null;
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3600); }
 function localDate() { const date = new Date(); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; }
 function validDate(value) { if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false; const date = new Date(value + 'T12:00:00'); return !isNaN(date) && `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}` === value; }
-function updateConnection() { $('#connect-open').textContent = store.connected ? '已连接 · 断开' : '连接 GitHub'; }
 function updateLocalMigration() {
   const pending = localMemories.filter(item => !memories.some(remote => remote.id === item.id));
   $('#local-migration').hidden = !pending.length;
@@ -38,7 +37,6 @@ async function refresh({quiet = false} = {}) {
     render();
   } finally { reading = false; $('#sync-refresh').disabled = false; }
 }
-function showConnection(action) { pendingAction = action || null; $('#connection-error').textContent = ''; $('#github-token').value = ''; $('#connection').showModal(); }
 function render() {
   $('#series-title').textContent = activeFilter === '全部' ? '我们的回忆' : activeFilter;
   $('#series-description').textContent = seriesDescriptions[activeFilter];
@@ -84,7 +82,6 @@ $('#memory-form').addEventListener('submit', async event => {
   event.preventDefault(); if(processingPhotos || saving) return;
   const title = $('#event-title').value.trim(); const date = $('#event-date').value;
   if(!title || !validDate(date)) return toast('请填写回忆的名字和有效日期');
-  if(!store.connected) return showConnection(() => $('#memory-form').requestSubmit());
   const existing = memories.find(memory => memory.id === editingId);
   const memory = {id:editingId || crypto.randomUUID(),title,date,category:$('#event-category').value,body:$('#event-body').value.trim(),place:$('#event-place').value.trim(),photos:[...selectedPhotos],createdAt:existing?.createdAt || Date.now()};
   saving = true; $('#save-button').disabled = true; $('#save-button').textContent = '正在收藏到共享手账…'; $('#event-photos').disabled = true;
@@ -98,7 +95,6 @@ $('#memory-form').addEventListener('submit', async event => {
 });
 async function removeMemory(memory) {
   if(saving) return;
-  if(!store.connected) return showConnection(() => removeMemory(memory));
   if(!confirm(`确定从共享手账移除「${memory.title}」吗？两边将不再显示这条回忆。公开过的文件仍可能保留在 GitHub 历史版本中。`)) return;
   saving = true; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = true);
   try { const data = await store.remove(memory.id,memory.version); memories = data.memories; render(); updateLocalMigration(); toast('已从共享手账移除'); }
@@ -111,19 +107,9 @@ $('#memory-list').addEventListener('click',event => {
   if(view) { const memory = memories.find(m => m.id === view.dataset.view); showPhoto(memory.photos[0]); }
   if(remove) { const memory = memories.find(m => m.id === remove.dataset.delete); removeMemory(memory); }
 });
-$('#connect-open').addEventListener('click', () => { if(store.connected) { store.disconnect(); updateConnection(); toast('已断开连接，仍可查看共享回忆'); } else showConnection(); });
-$('#connect-close').addEventListener('click', () => { $('#github-token').value = ''; pendingAction = null; $('#connection').close(); });
-$('#connection').addEventListener('close', () => { $('#github-token').value = ''; });
-$('#connection-form').addEventListener('submit',async event => {
-  event.preventDefault(); $('#connect-button').disabled = true; $('#connection-error').textContent = '';
-  try { await store.connect($('#github-token').value); $('#github-token').value = ''; updateConnection(); $('#connection').close(); const action = pendingAction; pendingAction = null; if(action) await action(); else toast('已连接，现在可以收藏共享回忆 ♡'); }
-  catch(error) { $('#connection-error').textContent = error.message; }
-  finally { $('#connect-button').disabled = false; }
-});
 $('#sync-refresh').addEventListener('click', () => refresh());
 async function publishLocal() {
   if(!ready || saving) return;
-  if(!store.connected) return showConnection(publishLocal);
   const pending = localMemories.filter(item => !memories.some(remote => remote.id === item.id));
   saving = true; $('#publish-local').disabled = true;
   try {
@@ -147,4 +133,4 @@ async function readLocalMemories() {
 function autoRefresh() { if(!document.hidden && !document.querySelector('dialog[open]') && Date.now()-lastReadAt > 15000) refresh({quiet:true}); }
 window.addEventListener('focus',autoRefresh);
 setInterval(autoRefresh,60000);
-render(); updateConnection(); refresh(); readLocalMemories();
+render(); refresh(); readLocalMemories();
