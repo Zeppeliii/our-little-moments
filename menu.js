@@ -1,3 +1,4 @@
+import {enter,pulse,revealCards,heartAt,celebrate} from './motion.js?v=motion-20261028-1';
 import {sameOrderDraft} from './menu-order.js';
 import {WORKER_URL} from './site-config.js?v=netlify-1';
 import {MENU_CATEGORIES,ORDER_STATUSES,validateMenu} from './menu-model.js?v=menu-1';
@@ -94,8 +95,9 @@ function render() {
   if(ready && category !== '全部' && !categories.includes(category)) category = '全部';
   $('#dish-categories').innerHTML = ['全部',...categories].map(name => `<button type="button" data-menu-category="${name}" aria-pressed="${category === name}">${categoryIcon(name)}<span>${name}</span></button>`).join('');
   const dishes = data.dishes.filter(dish => category === '全部' || dish.category === category).sort((a,b) => b.createdAt-a.createdAt);
-  $('#dish-list').innerHTML = !ready ? '<div class="menu-empty"><h3>菜单还没打开</h3><p>正在连接，或点击上方“刷新菜单”再试一次。</p></div>' : !dishes.length ? `<div class="menu-empty">${icon('utensils')}<h3>${data.dishes.length ? '这一页还没有菜品' : '我们的小餐厅，等你来开张'}</h3><p>把拿手菜、喜欢的小吃和饮品收进来，<br>以后想吃什么，就在这里点。</p><button type="button" class="outline" data-add-dish>添加${category === '全部' ? '第一道菜' : category}</button></div>` : dishes.map(dish => `<article class="dish-card"><div class="dish-picture">${dish.photo ? `<img src="${escapeHTML(dish.photo)}" alt="${escapeHTML(dish.name)}" loading="lazy">` : `<span class="dish-placeholder">${icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</span>`}<span class="dish-category">${dish.category}</span></div><div class="dish-content"><h3>${escapeHTML(dish.name)}</h3><p>${escapeHTML(dish.description || '')}</p>${ratingStars(dish)}<div class="dish-bottom">${cart.get(dish.id) ? `<div class="quantity"><button type="button" data-cart-step="-1" data-dish-id="${dish.id}" aria-label="减少${escapeHTML(dish.name)}的份数">${icon('minus')}</button><b>${cart.get(dish.id)}</b><button type="button" data-cart-step="1" data-dish-id="${dish.id}" aria-label="增加${escapeHTML(dish.name)}的份数">${icon('plus')}</button></div>` : `<button type="button" class="dish-select" data-add-to-cart="${dish.id}" aria-label="点一份${escapeHTML(dish.name)}">${icon('plus')}<span>点一份</span></button>`}</div>${managing ? `<div class="dish-manage-actions"><button type="button" data-edit-dish="${dish.id}">编辑</button><button type="button" data-delete-dish="${dish.id}">下架</button></div>` : ''}</div></article>`).join('');
+  $('#dish-list').innerHTML = !ready ? '<div class="menu-empty"><h3>菜单还没打开</h3><p>正在连接，或点击上方“刷新菜单”再试一次。</p></div>' : !dishes.length ? `<div class="menu-empty">${icon('utensils')}<h3>${data.dishes.length ? '这一页还没有菜品' : '我们的小餐厅，等你来开张'}</h3><p>把拿手菜、喜欢的小吃和饮品收进来，<br>以后想吃什么，就在这里点。</p><button type="button" class="outline" data-add-dish>添加${category === '全部' ? '第一道菜' : category}</button></div>` : dishes.map(dish => `<article class="dish-card" data-menu-dish="${dish.id}"><div class="dish-picture">${dish.photo ? `<img src="${escapeHTML(dish.photo)}" alt="${escapeHTML(dish.name)}" loading="lazy">` : `<span class="dish-placeholder">${icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</span>`}<span class="dish-category">${dish.category}</span></div><div class="dish-content"><h3>${escapeHTML(dish.name)}</h3><p>${escapeHTML(dish.description || '')}</p>${ratingStars(dish)}<div class="dish-bottom">${cart.get(dish.id) ? `<div class="quantity"><button type="button" data-cart-step="-1" data-dish-id="${dish.id}" aria-label="减少${escapeHTML(dish.name)}的份数">${icon('minus')}</button><b>${cart.get(dish.id)}</b><button type="button" data-cart-step="1" data-dish-id="${dish.id}" aria-label="增加${escapeHTML(dish.name)}的份数">${icon('plus')}</button></div>` : `<button type="button" class="dish-select" data-add-to-cart="${dish.id}" aria-label="点一份${escapeHTML(dish.name)}">${icon('plus')}<span>点一份</span></button>`}</div>${managing ? `<div class="dish-manage-actions"><button type="button" data-edit-dish="${dish.id}">编辑</button><button type="button" data-delete-dish="${dish.id}">下架</button></div>` : ''}</div></article>`).join('');
   renderCart(); renderOrders(); renderRanking(); setBusy(busy);
+  revealCards($('#dish-list'),category);
 }
 function ratingStars(dish) {
   const score = dish.rating || 0;
@@ -130,6 +132,7 @@ function switchView(next) {
   closeCart();
   view = next; $('#menu-choose').hidden = next !== 'choose'; $('#menu-orders').hidden = next !== 'orders'; $('#menu-ranking').hidden = next !== 'ranking';
   document.querySelectorAll('[data-menu-view]').forEach(button => button.setAttribute('aria-pressed',String(button.dataset.menuView === next))); updateCartbar();
+  enter($(`#menu-${next}`));
 }
 function switchPage() {
   closeCart();
@@ -138,6 +141,7 @@ function switchPage() {
   document.querySelectorAll('[data-page-link]').forEach(link => { link.classList.toggle('nav-active', (link.dataset.pageLink === 'menu') === active); if(link.classList.contains('nav-active')) link.setAttribute('aria-current','page'); else link.removeAttribute('aria-current'); });
   $('#top-add').hidden = active;
   updateCartbar();
+  enter(active ? document.querySelector('.menu-intro') : document.querySelector('.hero'));
   if(active && !ready && !reading) readMenu();
 }
 function openDish(id) {
@@ -165,13 +169,15 @@ document.addEventListener('click', async event => {
   if(busy || photoBusy || reading) return status('正在保存或读取菜单，请稍等。');
   if(target.dataset.diningMode) {
     mode = target.dataset.diningMode; $('#home-dining').hidden = mode !== 'home'; $('#outside-dining').hidden = mode !== 'outside';
-    document.querySelectorAll('[data-dining-mode]').forEach(button => button.setAttribute('aria-pressed',String(button.dataset.diningMode === mode))); updateCartbar(); return;
+    document.querySelectorAll('[data-dining-mode]').forEach(button => button.setAttribute('aria-pressed',String(button.dataset.diningMode === mode))); updateCartbar(); enter($(mode === 'home' ? '#home-dining' : '#outside-dining')); return;
   }
   if(target.dataset.dishRating) {
     const dish = data.dishes.find(item => item.id === target.dataset.ratingDish);
     if(!dish || dish.rating === Number(target.dataset.dishRating)) return;
     target.closest('.dish-rating').setAttribute('aria-busy','true');
-    try { await change('rate-dish',{id:dish.id,rating:Number(target.dataset.dishRating)},dish.version); status(''); }
+    try { await change('rate-dish',{id:dish.id,rating:Number(target.dataset.dishRating)},dish.version);
+      document.querySelectorAll(`[data-menu-dish="${dish.id}"] .rating-cell`).forEach((star,index) => { if(index < Number(target.dataset.dishRating)) pulse(star,index*35); });
+      status(''); }
     catch(error) { status(error.message); }
     finally { target.closest('.dish-rating')?.removeAttribute('aria-busy'); }
   }
@@ -183,9 +189,10 @@ document.addEventListener('click', async event => {
     const id = target.dataset.addToCart, quantity = cart.get(id) || 0;
     if(quantity >= 20) return status('每道菜最多选 20 份。');
     if(!cart.has(id) && cart.size >= 30) return status('一份点单最多选 30 道菜。');
-    cart.set(id,quantity+1); render(); status('已加入这顿想吃 · 选好后记得提交点单');
+    const rect = target.getBoundingClientRect();
+    cart.set(id,quantity+1); render(); heartAt(rect); pulse($('#cartbar-summary')); pulse(document.querySelector(`[data-menu-dish="${id}"] .quantity`)); status('已加入这顿想吃 · 选好后记得提交点单');
   }
-  if(target.dataset.cartStep) { const id = target.dataset.dishId; const quantity = (cart.get(id)||0)+Number(target.dataset.cartStep); if(quantity <= 0) cart.delete(id); else if(quantity <= 20) cart.set(id,quantity); render(); }
+  if(target.dataset.cartStep) { const id = target.dataset.dishId; const quantity = (cart.get(id)||0)+Number(target.dataset.cartStep); if(quantity <= 0) cart.delete(id); else if(quantity <= 20) cart.set(id,quantity); render(); pulse($('#cartbar-summary')); }
   if(target.dataset.orderFilter) { orderFilter = target.dataset.orderFilter; document.querySelectorAll('[data-order-filter]').forEach(button => button.setAttribute('aria-pressed',String(button.dataset.orderFilter === orderFilter))); renderOrders(); }
   if(target.dataset.deleteDish) {
     const dish = data.dishes.find(item => item.id === target.dataset.deleteDish);
@@ -224,7 +231,7 @@ $('#home-order-form').addEventListener('submit', async event => {
   homeOrderId ||= crypto.randomUUID();
   const who = $('#home-who').value.trim();
   const order = {id:homeOrderId,mode:'home',who,restaurant:'',note:$('#home-note').value.trim(),items:[...cart].map(([id,quantity]) => ({dishId:id,name:data.dishes.find(dish => dish.id === id).name,quantity}))};
-  try { const result = await change('place-order',order); confirmSavedOrder(result,order); closeCart(); cart.clear(); homeOrderId = null; $('#home-note').value = ''; rememberWho(who); orderFilter = 'active'; switchView('orders'); render(); status('点单已送到我们的小餐厅 · 对方打开网页就能看到'); }
+  try { const result = await change('place-order',order); confirmSavedOrder(result,order); closeCart(); cart.clear(); homeOrderId = null; $('#home-note').value = ''; rememberWho(who); orderFilter = 'active'; switchView('orders'); render(); celebrate($('#menu-orders .order-card')); status('点单已送到我们的小餐厅 · 对方打开网页就能看到'); }
   catch(error) { if(error.status === 409) homeOrderId = null; status(error.message); }
 });
 $('#outside-order-form').addEventListener('submit', async event => {
@@ -234,7 +241,7 @@ $('#outside-order-form').addEventListener('submit', async event => {
   outsideOrderId ||= crypto.randomUUID();
   const who = $('#outside-who').value.trim();
   const order = {id:outsideOrderId,mode:'outside',who,restaurant:$('#outside-restaurant').value.trim(),note:$('#outside-note').value.trim(),items:foods.map(name => ({dishId:null,name,quantity:1}))};
-  try { const result = await change('place-order',order); confirmSavedOrder(result,order); outsideOrderId = null; $('#outside-order-form').reset(); rememberWho(who); orderFilter = 'active'; switchView('orders'); render(); status('约饭单已共享 · 等对方一起安排这顿饭'); }
+  try { const result = await change('place-order',order); confirmSavedOrder(result,order); outsideOrderId = null; $('#outside-order-form').reset(); rememberWho(who); orderFilter = 'active'; switchView('orders'); render(); celebrate($('#menu-orders .order-card')); status('约饭单已共享 · 等对方一起安排这顿饭'); }
   catch(error) { if(error.status === 409) outsideOrderId = null; status(error.message); }
 });
 window.addEventListener('hashchange',switchPage);

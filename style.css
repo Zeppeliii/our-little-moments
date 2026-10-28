@@ -70,3 +70,25 @@ button.card-picture{width:100%;padding:0;border:0;border-radius:0;color:var(--pi
 /* 分类图标沿用菜单的单色线条，随选中态一起变色。 */
 .dish-categories button{display:inline-flex;align-items:center;justify-content:center;gap:6px}.dish-categories button>.icon{width:16px;height:16px;flex-shrink:0;stroke-width:1.7}
 @media(max-width:580px){.dish-categories{gap:3px}.dish-categories button{gap:4px;padding-left:8px;padding-right:8px}.dish-categories button>.icon{width:15px;height:15px}}
+
+/* 手机优先的轻动效：仅使用透明度和位移，不循环装饰或拖慢操作。 */
+@media(prefers-reduced-motion:no-preference){
+.dish-categories button,.dining-modes>button,.menu-tabs button,.filters .series-card,.all-series{transition:background-color .2s,color .2s,border-color .2s}
+.dish-select,.quantity button,.rating-half,.primary,.outline{transition:background-color .18s,opacity .18s,transform .15s}
+.dish-select:active,.quantity button:active,.primary:active,.outline:active{transform:scale(.96)}
+.series-card:active .series-icon{transform:scale(.92)}.series-icon{transition:transform .18s}
+dialog[open]{animation:gentle-dialog .24s cubic-bezier(.22,.7,.3,1)}
+dialog[open]::backdrop{animation:gentle-backdrop .2s both}
+#menu-feedback:not([hidden]){animation:gentle-feedback .2s both}
+@media(max-width:580px){#cart-sheet[open]{animation:gentle-sheet .3s cubic-bezier(.22,.7,.3,1)}}
+}
+.motion-heart{position:fixed;display:block;width:18px;height:18px;z-index:60;pointer-events:none;color:#df5866}.motion-heart svg{width:100%;height:100%;fill:currentColor}
+@keyframes gentle-dialog{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes gentle-sheet{from{opacity:.5;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes gentle-backdrop{from{opacity:0}to{opacity:1}}
+@keyframes gentle-feedback{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.motion-heart{display:none}}
+
+#series-title{display:inline-block}
+
+@media(hover:none){.memory-card:hover{transform:none;box-shadow:none}}
