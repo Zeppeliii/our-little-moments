@@ -80,9 +80,10 @@
       "category": "酒水饮品",
       "description": "无糖的橙味快乐，冰冰凉凉。",
       "photo": "menu-art/fanta.svg",
-      "rating": 0,
+      "rating": 5,
       "createdAt": 1793131192000,
-      "version": "bd1808cc-2272-494f-adc5-5ca5663c30be"
+      "version": "e88232c9-aff6-409a-8030-864b81444d4d",
+      "updatedAt": 1793170135070
     },
     {
       "id": "de987b62-4a59-53f6-821d-1db1bb54278c",
