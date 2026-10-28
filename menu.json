@@ -2,16 +2,6 @@
   "version": 1,
   "dishes": [
     {
-      "id": "c3ce2bf2-5150-5c6d-b3a2-b2e31532b066",
-      "name": "彩椒牛肉",
-      "category": "荤菜",
-      "description": "彩椒的清甜，配上嫩嫩的牛肉。",
-      "photo": "menu-art/pepper-beef.svg",
-      "rating": 0,
-      "createdAt": 1793131200000,
-      "version": "6579b51b-8ce9-4fa9-81f1-4c73eb90c416"
-    },
-    {
       "id": "60eb0b7d-250a-5c30-9acd-010ab64448d8",
       "name": "番茄炒蛋",
       "category": "荤菜",
@@ -120,6 +110,17 @@
       "rating": 0,
       "createdAt": 1793131189000,
       "version": "fd77d57c-cd3b-4ffe-a037-acf91717d7c2"
+    },
+    {
+      "id": "c3ce2bf2-5150-5c6d-b3a2-b2e31532b066",
+      "name": "彩椒牛肉",
+      "category": "荤菜",
+      "description": "彩椒的清甜，配上嫩嫩的牛肉。",
+      "photo": "menu-art/pepper-beef.svg",
+      "rating": 3,
+      "createdAt": 1793131200000,
+      "version": "db9b406f-1e0a-4e5f-ba28-5397b6cf6299",
+      "updatedAt": 1793160668822
     }
   ],
   "orders": []
