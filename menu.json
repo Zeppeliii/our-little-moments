@@ -68,9 +68,10 @@
       "category": "酒水饮品",
       "description": "清清爽爽，无糖也有小气泡。",
       "photo": "menu-art/sprite.svg",
-      "rating": 0,
+      "rating": 5,
       "createdAt": 1793131193000,
-      "version": "d980e2a5-0ca7-4149-a478-394a86028d71"
+      "version": "ad8033f2-b0d0-49e1-bcc7-99d7f0bfb04e",
+      "updatedAt": 1793170130862
     },
     {
       "id": "4bd8570e-ae23-5e11-a385-aac1529cdbc8",
