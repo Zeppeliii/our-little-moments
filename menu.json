@@ -145,8 +145,9 @@
       "description": "越干越好吃！",
       "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/c1a39b27-fc00-4384-8da5-d507b5df2b53/4f3a9cfd-4772-4a23-a2f5-fb4b9410f8d8.jpg",
       "createdAt": 1793173871802,
-      "version": "ac4ac25e-7d37-4d96-93ff-6d5875b4e344",
-      "rating": 0
+      "version": "cf7203e8-bd05-4d8e-bd8c-e202ccc61062",
+      "rating": 5,
+      "updatedAt": 1793175378719
     },
     {
       "id": "b399b73b-db89-4667-b0bb-17aa636c66fe",
