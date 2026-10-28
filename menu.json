@@ -192,6 +192,16 @@
       "version": "7485abfb-700b-44b3-9b73-57283b744bf2",
       "rating": 5,
       "updatedAt": 1793175386698
+    },
+    {
+      "id": "e56dd250-eb12-4e70-9ccd-80b4e9b7241c",
+      "name": "猪瘾炸鸡",
+      "category": "荤菜",
+      "description": "猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！猪瘾来了！",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/e56dd250-eb12-4e70-9ccd-80b4e9b7241c/874fb98a-0005-4698-aedf-6ee823318042.jpg",
+      "createdAt": 1793175638742,
+      "version": "afc98713-2e4b-4214-a0f4-e49388132e78",
+      "rating": 0
     }
   ],
   "orders": []
