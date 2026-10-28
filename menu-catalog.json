@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "dishes": [
+    {
+      "id": "c3ce2bf2-5150-5c6d-b3a2-b2e31532b066",
+      "name": "彩椒牛肉",
+      "category": "荤菜",
+      "description": "彩椒的清甜，配上嫩嫩的牛肉。",
+      "photo": "menu-art/pepper-beef.svg",
+      "rating": 0,
+      "createdAt": 1793131200000,
+      "version": "6579b51b-8ce9-4fa9-81f1-4c73eb90c416"
+    },
+    {
+      "id": "60eb0b7d-250a-5c30-9acd-010ab64448d8",
+      "name": "番茄炒蛋",
+      "category": "荤菜",
+      "description": "酸酸甜甜，热乎乎地拌进饭里。",
+      "photo": "menu-art/tomato-egg.svg",
+      "rating": 0,
+      "createdAt": 1793131199000,
+      "version": "b8045d25-7859-4430-b27f-b8b3f6c4a22d"
+    },
+    {
+      "id": "4d03e4e2-5819-5caa-bb9f-1f0575298215",
+      "name": "酸辣土豆丝",
+      "category": "素菜",
+      "description": "酸辣开胃，脆脆爽爽。",
+      "photo": "menu-art/potato-strips.svg",
+      "rating": 0,
+      "createdAt": 1793131198000,
+      "version": "aca5b249-1289-4e01-b305-077912efa69a"
+    },
+    {
+      "id": "d47be34a-8251-5a0d-897e-9885c59920ee",
+      "name": "炒蔬菜",
+      "category": "素菜",
+      "description": "炒一盘清爽，认真吃点蔬菜。",
+      "photo": "menu-art/stir-fried-greens.svg",
+      "rating": 0,
+      "createdAt": 1793131197000,
+      "version": "a54d283a-7eb6-4844-9272-6c716602b1a2"
+    },
+    {
+      "id": "573193cd-4e2b-55b0-805d-50d91dce26dd",
+      "name": "小面",
+      "category": "主食",
+      "description": "一碗热气腾腾的小面，辣度听你的。",
+      "photo": "menu-art/noodles.svg",
+      "rating": 0,
+      "createdAt": 1793131196000,
+      "version": "3c91d253-3109-4852-b349-b4711efa5792"
+    },
+    {
+      "id": "dce770ce-b602-5029-846b-e638a66efefb",
+      "name": "老面馒头",
+      "category": "主食",
+      "description": "朴朴素素，也香香软软。",
+      "photo": "menu-art/steamed-buns.svg",
+      "rating": 0,
+      "createdAt": 1793131195000,
+      "version": "a76cf81a-15be-465e-b2a1-dc51e78cd6e2"
+    },
+    {
+      "id": "14d55c2a-b38e-5986-a31c-772288e76a6d",
+      "name": "无糖可乐",
+      "category": "酒水饮品",
+      "description": "快乐有气泡，也可以不加糖。",
+      "photo": "menu-art/zero-cola.svg",
+      "rating": 0,
+      "createdAt": 1793131194000,
+      "version": "f919d59e-306b-463a-b58e-f6e884d0396b"
+    },
+    {
+      "id": "06b95009-50b6-582a-b51f-db3e44bf5122",
+      "name": "无糖雪碧",
+      "category": "酒水饮品",
+      "description": "清清爽爽，无糖也有小气泡。",
+      "photo": "menu-art/sprite.svg",
+      "rating": 0,
+      "createdAt": 1793131193000,
+      "version": "d980e2a5-0ca7-4149-a478-394a86028d71"
+    },
+    {
+      "id": "4bd8570e-ae23-5e11-a385-aac1529cdbc8",
+      "name": "无糖芬达",
+      "category": "酒水饮品",
+      "description": "无糖的橙味快乐，冰冰凉凉。",
+      "photo": "menu-art/fanta.svg",
+      "rating": 0,
+      "createdAt": 1793131192000,
+      "version": "bd1808cc-2272-494f-adc5-5ca5663c30be"
+    },
+    {
+      "id": "de987b62-4a59-53f6-821d-1db1bb54278c",
+      "name": "威士忌酸",
+      "category": "酒水饮品",
+      "description": "酸甜平衡的一小杯微醺。",
+      "photo": "menu-art/whiskey-sour.svg",
+      "rating": 0,
+      "createdAt": 1793131191000,
+      "version": "2682acbd-cac9-4bd8-af9d-ee8412ea740e"
+    },
+    {
+      "id": "909dd4a1-b183-58fa-bfd0-719d1a707ad0",
+      "name": "螺丝起子",
+      "category": "酒水饮品",
+      "description": "橙香清亮，慢慢喝的一杯。",
+      "photo": "menu-art/screwdriver.svg",
+      "rating": 0,
+      "createdAt": 1793131190000,
+      "version": "5e5bae1d-86d0-4053-915e-1e876be458ec"
+    },
+    {
+      "id": "16f2dd5e-f05d-5766-962a-61af9da2ab27",
+      "name": "乌龙百利甜",
+      "category": "酒水饮品",
+      "description": "茶香和奶香，温柔地碰个杯。",
+      "photo": "menu-art/oolong-baileys.svg",
+      "rating": 0,
+      "createdAt": 1793131189000,
+      "version": "fd77d57c-cd3b-4ffe-a037-acf91717d7c2"
+    }
+  ]
+}

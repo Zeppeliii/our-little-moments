@@ -1,7 +1,11 @@
 import {readFile,writeFile} from 'node:fs/promises';
 const read = path => readFile(new URL(path,import.meta.url),'utf8');
-const model = (await read('memory-model.js')).replaceAll('export ','');
-const store = (await read('github-store.js')).replace(/^import .*;\n/,'').replaceAll('export ','');
+const stripModule = source => source.replace(/^import .*;\n/gm,'').replaceAll('export ','');
+const model = stripModule(await read('memory-model.js'));
+const store = stripModule(await read('github-store.js'));
+const menuModel = stripModule(await read('menu-model.js'));
+const menuOrder = stripModule(await read('menu-order.js'));
+const menuStore = stripModule(await read('menu-store.js'));
 const worker = (await read('worker.js')).replace(/^import .*;\n/gm,'');
-const bundle = `// 自动生成：运行 node build-worker.mjs 更新。\nconst model = (() => {\n${model}\nreturn {StoreError,validateDraft,validateManifest,photoPath};\n})();\nconst {StoreError,validateDraft} = model;\nconst GitHubStore = (() => {\nconst {StoreError,validateDraft,validateManifest,photoPath} = model;\n${store}\nreturn GitHubStore;\n})();\n${worker}`;
+const bundle = `// 自动生成：运行 node build-worker.mjs 更新。\nconst model = (() => {\n${model}\nreturn {StoreError,validateDraft,validateManifest,photoPath};\n})();\nconst {StoreError,validateDraft} = model;\nconst GitHubStore = (() => {\nconst {StoreError,validateDraft,validateManifest,photoPath} = model;\n${store}\nreturn GitHubStore;\n})();\nconst menuModel = (() => {\n${menuModel}\nreturn {MENU_CATEGORIES,ORDER_STATUSES,validateDish,validateOrder,validateMenu,menuPhotoPath,isMenuIllustration};\n})();\nconst MenuStore = (() => {\nconst {validateMenu,validateDish,validateOrder,menuPhotoPath,isMenuIllustration,ORDER_STATUSES} = menuModel;\n${menuOrder}\n${menuStore}\nreturn MenuStore;\n})();\n${worker}`;
 await writeFile(new URL('worker-bundle.js',import.meta.url),bundle);

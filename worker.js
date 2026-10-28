@@ -1,4 +1,5 @@
 import {GitHubStore} from './github-store.js';
+import {MenuStore} from './menu-store.js';
 import {StoreError,validateDraft} from './memory-model.js';
 
 const LIMIT = 16 * 1024 * 1024;
@@ -33,6 +34,16 @@ export function createHandler(makeStore = env => new GitHubStore({token:env.GITH
     try {
       const path = new URL(request.url).pathname.replace(/\/$/,'');
       if(path === '/health' && request.method === 'GET') return json({ok:true,configured:Boolean(env.GITHUB_TOKEN)});
+      if(path === '/menu') {
+        const menu = new MenuStore({token:env.GITHUB_TOKEN});
+        if(request.method === 'GET') return json(await menu.read());
+        if(request.method !== 'POST') return json({error:'不支持此操作'},405);
+        if(!origin || origin !== allowedOrigin) return json({error:'请从手账网站点单'},403);
+        if(!env.GITHUB_TOKEN) return json({error:'共享菜单服务尚未配置完成'},503);
+        const body = await readJSON(request);
+        if(!body || typeof body !== 'object' || Array.isArray(body)) throw new StoreError('请求格式不正确',400);
+        return json(await menu.change(body.action,body.value,body.expectedVersion ?? null));
+      }
       if(path !== '/memories' && !/^\/memories\/[^/]+$/.test(path)) return json({error:'未找到请求的功能'},404);
       const store = makeStore(env);
       if(path === '/memories' && request.method === 'GET') return json(await store.read());
