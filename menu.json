@@ -143,9 +143,9 @@
       "name": "食验室薯片",
       "category": "零食",
       "description": "咔嚓一口，一起吃点小快乐。",
-      "photo": "menu-art/shiyanshi-chips.svg",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/cf3a6c44-47f7-47e7-a58a-6e11a085f3ac/169cf966-eae8-4c97-97da-bf8e32448593.jpg",
       "createdAt": 1793172476242,
-      "version": "a461d8fc-d67c-44fd-8670-99887eca0ace",
+      "version": "86fda365-d01a-4d5c-9ea0-7f6948ef7379",
       "rating": 0
     }
   ],
