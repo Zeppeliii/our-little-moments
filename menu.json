@@ -47,9 +47,10 @@
       "category": "主食",
       "description": "朴朴素素，也香香软软。",
       "photo": "menu-art/steamed-buns.svg",
-      "rating": 0,
+      "rating": 5,
       "createdAt": 1793131195000,
-      "version": "a76cf81a-15be-465e-b2a1-dc51e78cd6e2"
+      "version": "e014d192-080e-4894-9d4b-d1bb3c3e6af2",
+      "updatedAt": 1793168925163
     },
     {
       "id": "14d55c2a-b38e-5986-a31c-772288e76a6d",
