@@ -58,9 +58,10 @@
       "category": "酒水饮品",
       "description": "快乐有气泡，也可以不加糖。",
       "photo": "menu-art/zero-cola.svg",
-      "rating": 0,
+      "rating": 5,
       "createdAt": 1793131194000,
-      "version": "f919d59e-306b-463a-b58e-f6e884d0396b"
+      "version": "18fdefd1-2e78-4b13-9ad0-18385a30544b",
+      "updatedAt": 1793170133078
     },
     {
       "id": "06b95009-50b6-582a-b51f-db3e44bf5122",
