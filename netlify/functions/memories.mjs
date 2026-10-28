@@ -6,4 +6,4 @@ export default request => handle(request,{
   GITHUB_TOKEN:process.env.GITHUB_TOKEN,
   ALLOWED_ORIGIN:process.env.ALLOWED_ORIGIN || 'https://zeppeliii.github.io'
 });
-export const config = {path:['/memories','/memories/*','/health']};
+export const config = {path:['/memories','/memories/*','/health','/menu']};
