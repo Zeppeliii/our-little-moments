@@ -1,6 +1,6 @@
 import {StoreError} from './memory-model.js';
 
-export const MENU_CATEGORIES = ['荤菜','素菜','主食','汤羹','小吃甜品','酒水饮品'];
+export const MENU_CATEGORIES = ['荤菜','素菜','主食','汤羹','小吃甜品','零食','酒水饮品'];
 export const ORDER_STATUSES = {pending:'等你来安排',accepted:'安排上了',completed:'吃过啦',cancelled:'已取消'};
 const ID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
 const PHOTO_PREFIX = 'https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/';

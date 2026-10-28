@@ -4,7 +4,7 @@ import {readSnapshot,writeSnapshot} from './site-cache.js?v=speed-20261028-1';
 import {previewPhoto,restoreOriginalPhoto} from './photo-delivery.js?v=speed-20261028-1';
 import {RatingSaver} from './menu-rating.js?v=rating-20261028-1';
 import {WORKER_URL} from './site-config.js?v=netlify-1';
-import {MENU_CATEGORIES,ORDER_STATUSES,validateMenu} from './menu-model.js?v=menu-1';
+import {MENU_CATEGORIES,ORDER_STATUSES,validateMenu} from './menu-model.js?v=snacks-20261028-1';
 
 const $ = selector => document.querySelector(selector);
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g,char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -19,6 +19,7 @@ const categoryIcons = {
   '主食':'<path d="M3 11h18c0 6-4 9-9 9s-9-3-9-9Zm5 10h8M8 7V3m4 4V2m4 5V3"/>',
   '汤羹':'<path d="M3 12h18c0 5-4 8-9 8s-9-3-9-8Zm5 9h8M8 8c-3-2 3-3 0-5m8 5c-3-2 3-3 0-5"/>',
   '小吃甜品':'<path d="m6 11 2 10h8l2-10ZM5 11h14M7 11a4 4 0 0 1 2-7 3 3 0 0 1 6 0 4 4 0 0 1 2 7M10 14v4m4-4v4"/>',
+  '零食':'<path d="M5 3h14l-1 4 1 14H5L6 7 5 3Zm1 4h12M6 18h12"/><ellipse cx="12" cy="12.5" rx="3.5" ry="2.3" transform="rotate(-25 12 12.5)"/>',
 };
 const categoryIcon = name => name === '酒水饮品' ? icon('drink') : `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${categoryIcons[name]}</svg>`;
 let lastRead = 0, menuRevision = 0;
@@ -108,11 +109,11 @@ const ratings = new RatingSaver({
   onError:error=>status(`评分未保存，已恢复原分数。${error.message} 请刷新后重试。`)
 });
 function render() {
-  const categories = MENU_CATEGORIES.filter(name => data.dishes.some(dish => dish.category === name));
+  const categories = MENU_CATEGORIES.filter(name => name === '零食' || data.dishes.some(dish => dish.category === name));
   if(ready && category !== '全部' && !categories.includes(category)) category = '全部';
   $('#dish-categories').innerHTML = ['全部',...categories].map(name => `<button type="button" data-menu-category="${name}" aria-pressed="${category === name}">${categoryIcon(name)}<span>${name}</span></button>`).join('');
   const dishes = data.dishes.filter(dish => category === '全部' || dish.category === category).sort((a,b) => b.createdAt-a.createdAt);
-  $('#dish-list').innerHTML = !ready ? '<div class="menu-empty"><h3>菜单还没打开</h3><p>正在连接，或点击上方“刷新菜单”再试一次。</p></div>' : !dishes.length ? `<div class="menu-empty">${icon('utensils')}<h3>${data.dishes.length ? '这一页还没有菜品' : '我们的小餐厅，等你来开张'}</h3><p>把拿手菜、喜欢的小吃和饮品收进来，<br>以后想吃什么，就在这里点。</p><button type="button" class="outline" data-add-dish>添加${category === '全部' ? '第一道菜' : category}</button></div>` : dishes.map(dish => `<article class="dish-card" data-menu-dish="${dish.id}"><div class="dish-picture">${dish.photo ? `<img src="${escapeHTML(previewPhoto(dish.photo,480))}" data-original="${escapeHTML(dish.photo)}" decoding="async" alt="${escapeHTML(dish.name)}" loading="lazy">` : `<span class="dish-placeholder">${icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</span>`}<span class="dish-category">${dish.category}</span></div><div class="dish-content"><h3>${escapeHTML(dish.name)}</h3><p>${escapeHTML(dish.description || '')}</p>${ratingStars(dish)}<div class="dish-bottom">${cart.get(dish.id) ? `<div class="quantity"><button type="button" data-cart-step="-1" data-dish-id="${dish.id}" aria-label="减少${escapeHTML(dish.name)}的份数">${icon('minus')}</button><b>${cart.get(dish.id)}</b><button type="button" data-cart-step="1" data-dish-id="${dish.id}" aria-label="增加${escapeHTML(dish.name)}的份数">${icon('plus')}</button></div>` : `<button type="button" class="dish-select" data-add-to-cart="${dish.id}" aria-label="点一份${escapeHTML(dish.name)}">${icon('plus')}<span>点一份</span></button>`}</div>${managing ? `<div class="dish-manage-actions"><button type="button" data-edit-dish="${dish.id}">编辑</button><button type="button" data-delete-dish="${dish.id}">下架</button></div>` : ''}</div></article>`).join('');
+  $('#dish-list').innerHTML = !ready ? '<div class="menu-empty"><h3>菜单还没打开</h3><p>正在连接，或点击上方“刷新菜单”再试一次。</p></div>' : !dishes.length ? `<div class="menu-empty">${category === '零食' ? categoryIcon(category) : icon('utensils')}<h3>${data.dishes.length ? '这一页还没有菜品' : '我们的小餐厅，等你来开张'}</h3><p>把拿手菜、喜欢的小吃和饮品收进来，<br>以后想吃什么，就在这里点。</p><button type="button" class="outline" data-add-dish>添加${category === '全部' ? '第一道菜' : category}</button></div>` : dishes.map(dish => `<article class="dish-card" data-menu-dish="${dish.id}"><div class="dish-picture">${dish.photo ? `<img src="${escapeHTML(previewPhoto(dish.photo,480))}" data-original="${escapeHTML(dish.photo)}" decoding="async" alt="${escapeHTML(dish.name)}" loading="lazy">` : `<span class="dish-placeholder">${dish.category === '零食' ? categoryIcon(dish.category) : icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</span>`}<span class="dish-category">${dish.category}</span></div><div class="dish-content"><h3>${escapeHTML(dish.name)}</h3><p>${escapeHTML(dish.description || '')}</p>${ratingStars(dish)}<div class="dish-bottom">${cart.get(dish.id) ? `<div class="quantity"><button type="button" data-cart-step="-1" data-dish-id="${dish.id}" aria-label="减少${escapeHTML(dish.name)}的份数">${icon('minus')}</button><b>${cart.get(dish.id)}</b><button type="button" data-cart-step="1" data-dish-id="${dish.id}" aria-label="增加${escapeHTML(dish.name)}的份数">${icon('plus')}</button></div>` : `<button type="button" class="dish-select" data-add-to-cart="${dish.id}" aria-label="点一份${escapeHTML(dish.name)}">${icon('plus')}<span>点一份</span></button>`}</div>${managing ? `<div class="dish-manage-actions"><button type="button" data-edit-dish="${dish.id}">编辑</button><button type="button" data-delete-dish="${dish.id}">下架</button></div>` : ''}</div></article>`).join('');
   renderCart(); renderOrders(); renderRanking(); setBusy(busy);
   revealCards($('#dish-list'),category);
 }
@@ -128,7 +129,7 @@ function renderRanking() {
   const scores = [...new Set(ranked.map(dish => dish.rating))];
   $('#menu-ranking-list').innerHTML = !ranked.length ? `<div class="menu-empty">${icon('star')}<h3>第一道心头好，等你来选</h3><p>给喜欢的菜或饮品点颗星，<br>评分后就会出现在这里。</p><button type="button" class="outline" data-menu-view="choose">去给菜单打分</button></div>` : ranked.map(dish => {
     const rank = scores.indexOf(dish.rating)+1;
-    return `<article class="ranking-card ${rank <= 3 ? 'ranking-top' : ''}"><span class="ranking-number">${String(rank).padStart(2,'0')}</span><div class="ranking-photo">${dish.photo ? `<img src="${escapeHTML(previewPhoto(dish.photo,480))}" data-original="${escapeHTML(dish.photo)}" decoding="async" alt="${escapeHTML(dish.name)}" loading="lazy">` : icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</div><div class="ranking-copy"><span>${dish.category}</span><h3>${escapeHTML(dish.name)}</h3></div><div class="ranking-score">${icon('star')}<strong>${dish.rating}</strong></div></article>`;
+    return `<article class="ranking-card ${rank <= 3 ? 'ranking-top' : ''}"><span class="ranking-number">${String(rank).padStart(2,'0')}</span><div class="ranking-photo">${dish.photo ? `<img src="${escapeHTML(previewPhoto(dish.photo,480))}" data-original="${escapeHTML(dish.photo)}" decoding="async" alt="${escapeHTML(dish.name)}" loading="lazy">` : dish.category === '零食' ? categoryIcon(dish.category) : icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</div><div class="ranking-copy"><span>${dish.category}</span><h3>${escapeHTML(dish.name)}</h3></div><div class="ranking-score">${icon('star')}<strong>${dish.rating}</strong></div></article>`;
   }).join('');
 }
 function renderCart() {
