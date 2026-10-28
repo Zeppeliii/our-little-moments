@@ -91,9 +91,10 @@
       "category": "酒水饮品",
       "description": "酸甜平衡的一小杯微醺。",
       "photo": "menu-art/whiskey-sour.svg",
-      "rating": 0,
+      "rating": 1,
       "createdAt": 1793131191000,
-      "version": "2682acbd-cac9-4bd8-af9d-ee8412ea740e"
+      "version": "6f361191-f270-4be8-9395-3bb46472d969",
+      "updatedAt": 1793170137811
     },
     {
       "id": "909dd4a1-b183-58fa-bfd0-719d1a707ad0",
