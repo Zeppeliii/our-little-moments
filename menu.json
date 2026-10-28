@@ -139,16 +139,6 @@
       "rating": 0
     },
     {
-      "id": "cf3a6c44-47f7-47e7-a58a-6e11a085f3ac",
-      "name": "食验室薯片",
-      "category": "零食",
-      "description": "咔嚓一口，一起吃点小快乐。",
-      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/cf3a6c44-47f7-47e7-a58a-6e11a085f3ac/169cf966-eae8-4c97-97da-bf8e32448593.jpg",
-      "createdAt": 1793172476242,
-      "version": "86fda365-d01a-4d5c-9ea0-7f6948ef7379",
-      "rating": 0
-    },
-    {
       "id": "c1a39b27-fc00-4384-8da5-d507b5df2b53",
       "name": "干捏酸奶",
       "category": "零食",
@@ -186,6 +176,16 @@
       "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/8cc45634-407f-4c13-be1e-cfec2d896c89/90f23938-06ae-4c43-ad4d-674b5645bbe0.jpg",
       "createdAt": 1793173256106,
       "version": "869e5a83-a339-4dec-8027-7ba1f734100f",
+      "rating": 0
+    },
+    {
+      "id": "cf3a6c44-47f7-47e7-a58a-6e11a085f3ac",
+      "name": "食验室薯片",
+      "category": "零食",
+      "description": "咔嚓一口，一起吃点小快乐！（注：薯片每次只能买一包）",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/cf3a6c44-47f7-47e7-a58a-6e11a085f3ac/169cf966-eae8-4c97-97da-bf8e32448593.jpg",
+      "createdAt": 1793172476242,
+      "version": "c9c586a1-2b69-47d2-bf39-945d60998091",
       "rating": 0
     }
   ],
