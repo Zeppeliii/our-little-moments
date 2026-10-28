@@ -147,6 +147,16 @@
       "createdAt": 1793172476242,
       "version": "86fda365-d01a-4d5c-9ea0-7f6948ef7379",
       "rating": 0
+    },
+    {
+      "id": "8cc45634-407f-4c13-be1e-cfec2d896c89",
+      "name": "乐事罐装黄瓜味",
+      "category": "零食",
+      "description": "必须要吃罐装的！！！！",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/8cc45634-407f-4c13-be1e-cfec2d896c89/90f23938-06ae-4c43-ad4d-674b5645bbe0.jpg",
+      "createdAt": 1793173256106,
+      "version": "cfbc6c4c-cddb-4099-ac12-e85708f7e6d0",
+      "rating": 0
     }
   ],
   "orders": []
