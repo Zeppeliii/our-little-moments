@@ -74,15 +74,8 @@ test('共享文件读取失败不伪装为空白手账',async()=>{
   const store=new GitHubStore({fetcher:async()=>response({},404)});
   await assert.rejects(store.read(),/无法读取/);
 });
-test('后台读取最新提交，避开主分支文件的旧缓存',async()=>{
- const calls=[];
- const store=new GitHubStore({token:'test-token',fetcher:async(url,options)=>{
-   calls.push({url,options});
-   if(url.endsWith('/git/ref/heads/main')) return response({object:{sha:'最新提交'}});
-   if(url.includes('/main/')) return response({version:1,memories:[]});
-   return response({version:1,memories:[memory()]});
- }});
- assert.equal((await store.read()).memories.length,1);
- assert.equal(calls[0].options.headers.Authorization,'Bearer test-token');
- assert.ok(calls[1].url.includes(encodeURIComponent('最新提交')));assert.equal(calls[1].options.headers,undefined);
+test('后台一次读取最新文件内容和中文数据，不经过主分支原始文件缓存',async()=>{
+ const calls=[];const store=new GitHubStore({token:'test-token',fetcher:async(url,options)=>{
+  calls.push({url,options});return response({encoding:'base64',content:Buffer.from(JSON.stringify({version:1,memories:[memory()]})).toString('base64')});
+ }});assert.equal((await store.read()).memories[0].title,'第一次一起散步');assert.equal(calls.length,1);assert.ok(calls[0].url.endsWith('/contents/memories.json?ref=main'));assert.equal(calls[0].options.headers.Authorization,'Bearer test-token');
 });

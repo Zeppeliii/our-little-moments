@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-const source=(await readFile(new URL('./app.js',import.meta.url),'utf8')).replace(/^import .*;\n/,'');
+const source=(await readFile(new URL('./app.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
 function setup({failSave=false} = {}) {
  const elements=new Map();
  const element=selector=>{if(!elements.has(selector)) elements.set(selector,{value:'',dataset:{},classList:{add(){},remove(){}},listeners:{},addEventListener(event,fn){this.listeners[event]=fn;},reset(){},showModal(){this.open=true;},close(){this.open=false;}});return elements.get(selector);};
  let resolveRead;
  class CloudStore {read(){return new Promise(resolve=>{resolveRead=resolve;});} async publish(memory){if(failSave) throw new Error('模拟上传超时'); return {version:1,memories:[{...memory,version:'模拟版本'}]};}}
- const context=vm.createContext({CloudStore,document:{querySelector:element,querySelectorAll:()=>[],hidden:false},window:{addEventListener(){}},setInterval(){},setTimeout(){},clearTimeout(){},console,crypto:{randomUUID:()=> '11111111-1111-4111-8111-111111111111'}});
+ const context=vm.createContext({CloudStore,readSnapshot:()=>null,writeSnapshot(){},previewPhoto:value=>value,restoreOriginalPhoto(){},validateManifest:value=>value,enter(){},revealCards(){},document:{addEventListener(){},querySelector:element,querySelectorAll:()=>[],hidden:false},window:{addEventListener(){}},setInterval(){},setTimeout(){},clearTimeout(){},console,crypto:{randomUUID:()=> '11111111-1111-4111-8111-111111111111'}});
  vm.runInContext(source,context);
  return {context,element,resolveRead:()=>resolveRead({version:1,memories:[]})};
 }

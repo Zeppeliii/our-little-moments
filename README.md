@@ -12,6 +12,8 @@
 
 不同回忆同时修改时会合并；同一条回忆已被另一边修改时会提示刷新，防止覆盖。旧浏览器记录可用「发布本机回忆」迁移，不会删除本机原数据。旧分类「约会」「旅行」归为「日常」，「小事」归为「心动回忆」。
 
+评分点击后立即亮星，连续改分合并为最后一次选择，再在后台保存；保存失败会恢复并提示。回忆和菜单再次打开时先显示本机快照，再同步最新内容，后台刷新不会锁住已有菜单。照片列表通过 Netlify Image CDN 读取缩略图，失败回退原图；相册保留原图，并在非省流模式预加载相邻照片。多张新照片并行上传，仍在同一次提交中保存。
+
 ## 存储方式
 
 GitHub Pages 托管页面，Netlify Functions 接收保存请求，GitHub 仓库保存 `memories.json` 和 `data/photos/` 下的照片。照片和文字通过同一次 Git 提交发布。
@@ -33,7 +35,7 @@ GitHub Pages 托管页面，Netlify Functions 接收保存请求，GitHub 仓库
 
 运行 `python3 -m http.server 8000` 预览。正式后台只接受正式网站来源；本机调试使用模拟存储，不向真实手账发布虚构记录。
 
-运行 `node --test shared-store.test.mjs worker.test.mjs app-loading.test.mjs upload-request.test.mjs` 验证原子保存、冲突处理、输入验证、跨域与前端请求。运行 `node build-worker.mjs` 生成单文件后台部署包。
+运行 `node --test shared-store.test.mjs worker.test.mjs app-loading.test.mjs upload-request.test.mjs menu-rating.test.mjs menu-store.test.mjs menu-loading.test.mjs delivery.test.mjs` 验证原子保存、冲突处理、评分队列、缓存、缩略图回退、跨域与前端请求。运行 `node build-worker.mjs` 生成单文件后台部署包。
 
 - `app.js`、`index.html`、`style.css`：展示、编辑与照片处理。
 - `shared-store.js`、`site-config.js`：前端请求和公开后台地址。

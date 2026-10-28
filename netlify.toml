@@ -4,3 +4,6 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+[images]
+  remote_images = ["https://raw\\.githubusercontent\\.com/Zeppeliii/our-little-moments/main/data/(photos|menu-photos)/[a-f0-9-]+/[a-f0-9-]+\\.jpg"]

@@ -20,8 +20,15 @@ export class GitHubStore {
     }
     return response.json();
   }
+  async readFile(path) {
+    const file = await this.request(`/contents/${path}?ref=main`);
+    try {
+      const bytes = Uint8Array.from(atob(file.content.replace(/\s/g,'')),char=>char.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch { throw new StoreError('共享文件格式不正确，请稍后刷新',502); }
+  }
   async read(ref = BRANCH) {
-    if(ref === BRANCH && this.token) ref = (await this.request(`/git/ref/heads/${BRANCH}`)).object.sha;
+    if(ref === BRANCH && this.token) return validateManifest(await this.readFile(MANIFEST));
     let response;
     try { response = await this.fetcher(`${RAW}/${encodeURIComponent(ref)}/${MANIFEST}?t=${Date.now()}`, {cache:'no-store'}); }
     catch { throw new StoreError('共享回忆暂时无法读取，请检查网络后刷新'); }
@@ -39,22 +46,21 @@ export class GitHubStore {
     const prepared = memory ? {...memory,version:this.uuid(),updatedAt:Date.now(),photos:[]} : null;
     const photoEntries = [];
     if (memory) {
-      for (const photo of memory.photos) {
+      prepared.photos = await Promise.all(memory.photos.map(async photo => {
         const existingPath = photoPath(photo);
-        if (existingPath) { prepared.photos.push(photo); continue; }
+        if (existingPath) return photo;
         const match = typeof photo === 'string' && photo.match(DATA_PHOTO);
         if (!match) throw new StoreError('照片格式不正确，请重新选择照片');
         const path = `data/photos/${id}/${this.uuid()}.jpg`;
         const blob = await this.request('/git/blobs', {method:'POST',body:{content:match[1],encoding:'base64'}});
         photoEntries.push({path,mode:'100644',type:'blob',sha:blob.sha});
-        prepared.photos.push(`${RAW}/${BRANCH}/${path}`);
-      }
+        return `${RAW}/${BRANCH}/${path}`;
+      }));
       validateManifest({version:1,memories:[prepared]});
     }
     for (let attempt = 0; attempt < 3; attempt++) {
       const ref = await this.request(`/git/ref/heads/${BRANCH}`);
-      const commit = await this.request(`/git/commits/${ref.object.sha}`);
-      const data = await this.read(ref.object.sha);
+      const [commit,data] = await Promise.all([this.request(`/git/commits/${ref.object.sha}`),this.read(ref.object.sha)]);
       const previous = data.memories.find(item => item.id === id);
       if ((previous?.version || null) !== expectedVersion) throw new StoreError('这条回忆已在另一边修改，请先关闭编辑、刷新后再修改',409);
       if (!memory && !previous) throw new StoreError('这条回忆已经被移除，请刷新页面',409);

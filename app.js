@@ -1,5 +1,8 @@
 import {enter,revealCards} from './motion.js?v=heart-20261028-2';
 import { CloudStore } from './shared-store.js?v=netlify-1';
+import {validateManifest} from './memory-model.js';
+import {readSnapshot,writeSnapshot} from './site-cache.js?v=speed-20261028-1';
+import {previewPhoto,restoreOriginalPhoto} from './photo-delivery.js?v=speed-20261028-1';
 'use strict';
 const $ = (selector) => document.querySelector(selector);
 const categoryNames = {第一次:'第一次',心动回忆:'心动回忆',日常:'日常',纪念日:'纪念日'};
@@ -34,9 +37,10 @@ async function refresh({quiet = false} = {}) {
   try {
     const data = await store.read();
     if(revision !== dataRevision) return;
-    memories = data.memories; ready = true; lastReadError = ''; lastReadAt = Date.now();
+    const changed = !ready || JSON.stringify(memories) !== JSON.stringify(data.memories);
+    memories = data.memories; writeSnapshot('moments-shared-memories-v1',data); ready = true; lastReadError = ''; lastReadAt = Date.now();
     $('#sync-status').textContent = '共享回忆已更新 · 两边都能看到';
-    updateLocalMigration(); render();
+    updateLocalMigration(); if(changed) render();
   } catch(error) {
     if(revision !== dataRevision) return;
     lastReadError = error.message;
@@ -87,7 +91,7 @@ function render() {
   visible.forEach(memory => {
     const nextMonth = memory.date.slice(0,7);
     if (month !== nextMonth) { if(month) html += '</div>'; month = nextMonth; html += `<h3 class="month-title">${icon('heart')}${month.slice(0,4)} 年 ${Number(month.slice(5))} 月 <span>属于我们的时光</span></h3><div class="cards">`; }
-    html += `<article class="memory-card" data-memory="${escapeHTML(memory.id)}"><button type="button" class="card-picture ${memory.photos.length ? '' : 'no-photo'}" data-detail="${escapeHTML(memory.id)}" aria-label="查看${escapeHTML(memory.title)}的详情">${memory.photos.length ? `<img src="${escapeHTML(memory.photos[0])}" alt="${escapeHTML(memory.title)}" loading="lazy"><span class="photo-badge">${memory.photos.length} 张照片</span>` : '<svg aria-hidden="true"><use href="#kitty"/></svg>'}</button><div class="card-content"><div class="card-meta"><time datetime="${memory.date}">${memory.date.replaceAll('-',' / ')}</time><span class="category">${categoryIcon(memory.category)}${categoryNames[memory.category]}</span></div><h3><button type="button" class="card-title" data-detail="${escapeHTML(memory.id)}">${escapeHTML(memory.title)}</button></h3><p class="card-body">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p><div class="card-bottom"><span class="place">${memory.place ? icon('map-pin')+' '+escapeHTML(memory.place) : icon('heart')+' 收藏了一份小幸福'}</span><div class="card-actions"><button type="button" data-detail="${escapeHTML(memory.id)}">重温回忆 ${icon('arrow-up-right')}</button></div></div></div></article>`;
+    html += `<article class="memory-card" data-memory="${escapeHTML(memory.id)}"><button type="button" class="card-picture ${memory.photos.length ? '' : 'no-photo'}" data-detail="${escapeHTML(memory.id)}" aria-label="查看${escapeHTML(memory.title)}的详情">${memory.photos.length ? `<img src="${escapeHTML(previewPhoto(memory.photos[0]))}" data-original="${escapeHTML(memory.photos[0])}" decoding="async" alt="${escapeHTML(memory.title)}" loading="lazy"><span class="photo-badge">${memory.photos.length} 张照片</span>` : '<svg aria-hidden="true"><use href="#kitty"/></svg>'}</button><div class="card-content"><div class="card-meta"><time datetime="${memory.date}">${memory.date.replaceAll('-',' / ')}</time><span class="category">${categoryIcon(memory.category)}${categoryNames[memory.category]}</span></div><h3><button type="button" class="card-title" data-detail="${escapeHTML(memory.id)}">${escapeHTML(memory.title)}</button></h3><p class="card-body">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p><div class="card-bottom"><span class="place">${memory.place ? icon('map-pin')+' '+escapeHTML(memory.place) : icon('heart')+' 收藏了一份小幸福'}</span><div class="card-actions"><button type="button" data-detail="${escapeHTML(memory.id)}">重温回忆 ${icon('arrow-up-right')}</button></div></div></div></article>`;
   }); list.innerHTML = html + '</div>';
   revealCards(list,activeFilter);
 }
@@ -97,7 +101,7 @@ function openDetail(id) {
   const memory = memories.find(item => item.id === id);
   if (!memory) return;
   detailId = id;
-  $('#detail-content').innerHTML = `<div class="modal-head"><div><div class="eyebrow">${categoryIcon(memory.category)} ${categoryNames[memory.category]}</div><h2 id="detail-title">${escapeHTML(memory.title)}</h2><p class="detail-meta">${memory.date.replaceAll('-',' / ')}${memory.place ? ` · ${escapeHTML(memory.place)}` : ''}</p></div><button type="button" class="icon-btn" id="detail-close" aria-label="关闭回忆详情">${icon('x')}</button></div><p class="detail-story">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p>${memory.photos.length ? `<div class="detail-album-heading"><h3>那天的照片</h3><span>${memory.photos.length} 张 · 点开慢慢看</span></div><div class="detail-photos">${memory.photos.map((photo,index) => `<button type="button" data-gallery-index="${index}" aria-label="查看第 ${index+1} 张照片"><img src="${escapeHTML(photo)}" alt="${escapeHTML(memory.title)}，第 ${index+1} 张照片" loading="lazy"><span>${index+1} / ${memory.photos.length}</span></button>`).join('')}</div>` : ''}<div class="detail-footer"><span>把这一刻，好好收藏。</span><details class="memory-more"><summary>更多操作</summary><div><button type="button" data-detail-edit>编辑回忆</button><button type="button" data-delete="${escapeHTML(memory.id)}">删除回忆</button></div></details></div>`;
+  $('#detail-content').innerHTML = `<div class="modal-head"><div><div class="eyebrow">${categoryIcon(memory.category)} ${categoryNames[memory.category]}</div><h2 id="detail-title">${escapeHTML(memory.title)}</h2><p class="detail-meta">${memory.date.replaceAll('-',' / ')}${memory.place ? ` · ${escapeHTML(memory.place)}` : ''}</p></div><button type="button" class="icon-btn" id="detail-close" aria-label="关闭回忆详情">${icon('x')}</button></div><p class="detail-story">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p>${memory.photos.length ? `<div class="detail-album-heading"><h3>那天的照片</h3><span>${memory.photos.length} 张 · 点开慢慢看</span></div><div class="detail-photos">${memory.photos.map((photo,index) => `<button type="button" data-gallery-index="${index}" aria-label="查看第 ${index+1} 张照片"><img src="${escapeHTML(previewPhoto(photo))}" data-original="${escapeHTML(photo)}" decoding="async" alt="${escapeHTML(memory.title)}，第 ${index+1} 张照片" loading="lazy"><span>${index+1} / ${memory.photos.length}</span></button>`).join('')}</div>` : ''}<div class="detail-footer"><span>把这一刻，好好收藏。</span><details class="memory-more"><summary>更多操作</summary><div><button type="button" data-detail-edit>编辑回忆</button><button type="button" data-delete="${escapeHTML(memory.id)}">删除回忆</button></div></details></div>`;
   if (!$('#memory-detail').open) $('#memory-detail').showModal();
   $('#memory-detail').scrollTop = 0;
 }
@@ -131,6 +135,9 @@ function stepPhoto(step) {
   if (next >= 0 && next < galleryPhotos.length) { galleryIndex = next; renderPhoto(); }
 }
 $('#viewer-image').addEventListener('load', () => {
+  if(!navigator.connection?.saveData) for(const index of [galleryIndex-1,galleryIndex+1]) {
+    if(galleryPhotos[index]) { const next = new Image(); next.decoding = 'async'; next.src = galleryPhotos[index]; }
+  }
   $('#viewer-image').hidden = false;
   setPhotoMode($('#viewer-image').naturalHeight > $('#viewer-image').naturalWidth * 1.8 ? 'read' : 'fit');
 });
@@ -187,7 +194,7 @@ $('#memory-form').addEventListener('submit', async event => {
       $('#save-button').textContent = message; $('#save-status').textContent = message;
     });
     dataRevision++; ready = true; lastReadError = '';
-    memories = data.memories; updateLocalMigration(); render(); $('#editor').close();
+    memories = data.memories; writeSnapshot('moments-shared-memories-v1',data); updateLocalMigration(); render(); $('#editor').close();
     $('#sync-status').textContent = '已保存到共享手账 · 另一边刷新就能看到';
     toast(existing ? '共享回忆已更新' : '已收藏，另一边也能看到这段回忆了');
   } catch(error) { $('#save-status').textContent = error.message; toast(error.message); }
@@ -197,7 +204,7 @@ async function removeMemory(memory) {
   if(saving) return;
   if(!confirm(`确定从共享手账移除「${memory.title}」吗？两边将不再显示这条回忆。公开过的文件仍可能保留在 GitHub 历史版本中。`)) return;
   saving = true; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = true);
-  try { const data = await store.remove(memory.id,memory.version); dataRevision++; memories = data.memories; render(); updateLocalMigration(); if(detailId === memory.id) $('#memory-detail').close(); toast('已从共享手账移除'); }
+  try { const data = await store.remove(memory.id,memory.version); dataRevision++; memories = data.memories; writeSnapshot('moments-shared-memories-v1',data); render(); updateLocalMigration(); if(detailId === memory.id) $('#memory-detail').close(); toast('已从共享手账移除'); }
   catch(error) { toast(error.message); }
   finally { saving = false; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = false); }
 }
@@ -217,7 +224,7 @@ async function publishLocal() {
   try {
     for(const [index,memory] of pending.entries()) {
       $('#sync-status').textContent = `正在公开本机回忆 ${index+1} / ${pending.length}…`;
-      const data = await store.publish(memory,null); dataRevision++; memories = data.memories; render(); updateLocalMigration();
+      const data = await store.publish(memory,null); dataRevision++; memories = data.memories; writeSnapshot('moments-shared-memories-v1',data); render(); updateLocalMigration();
     }
     $('#sync-status').textContent = '本机回忆已公开到共享手账'; toast('两边现在都可以看到这些回忆了');
   } catch(error) { toast(error.message); }
@@ -235,4 +242,7 @@ async function readLocalMemories() {
 function autoRefresh() { if(!document.hidden && !document.querySelector('dialog[open]') && Date.now()-lastReadAt > 15000) refresh({quiet:true}); }
 window.addEventListener('focus',autoRefresh);
 setInterval(() => { autoRefresh(); if(ready) renderLoveDays(); },60000);
+document.addEventListener('error',restoreOriginalPhoto,true);
+const cachedMemories = readSnapshot('moments-shared-memories-v1',validateManifest);
+if(cachedMemories) { memories = cachedMemories.memories; ready = true; }
 render(); refresh(); readLocalMemories();

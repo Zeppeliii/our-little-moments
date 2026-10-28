@@ -7,7 +7,10 @@ const RAW = 'https://raw.githubusercontent.com/Zeppeliii/our-little-moments';
 const ID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
 export class MenuStore extends GitHubStore {
   async read(ref = 'main') {
-    if(ref === 'main' && this.token) ref = (await this.request('/git/ref/heads/main')).object.sha;
+    if(ref === 'main' && this.token) {
+      try { return validateMenu(await this.readFile('menu.json')); }
+      catch(error) { if(error.status === 404) return {version:1,dishes:[],orders:[]}; throw error; }
+    }
     let response;
     try { response = await this.fetcher(`${RAW}/${encodeURIComponent(ref)}/menu.json?t=${Date.now()}`,{cache:'no-store'}); }
     catch { throw new StoreError('共享菜单暂时无法读取，请稍后刷新'); }
@@ -41,11 +44,11 @@ export class MenuStore extends GitHubStore {
     }
     if(action === 'order-status' && !Object.hasOwn(ORDER_STATUSES,value.status)) throw new StoreError('点单状态不正确',400);
     if(action === 'rate-dish' && (!Number.isFinite(value.rating) || !Number.isInteger(value.rating * 2) || value.rating < 0.5 || value.rating > 5)) throw new StoreError('请选择 0.5–5 星评分，每半星一档',400);
+    if(action === 'rate-dish') return this.rateDish(value,expectedVersion);
     const version = this.uuid();
     for(let attempt = 0; attempt < 3; attempt++) {
       const ref = await this.request('/git/ref/heads/main');
-      const commit = await this.request(`/git/commits/${ref.object.sha}`);
-      const data = await this.read(ref.object.sha);
+      const [commit,data] = await Promise.all([this.request(`/git/commits/${ref.object.sha}`),this.read(ref.object.sha)]);
       const isDish = action.endsWith('dish');
       const items = isDish ? data.dishes : data.orders;
       const previous = items.find(item => item.id === value.id);
@@ -78,4 +81,30 @@ export class MenuStore extends GitHubStore {
       catch(error) { if(![409,422].includes(error.status) || attempt === 2) throw error; }
     }
   }
+  async rateDish(value,expectedVersion) {
+    const version = this.uuid(), now = Date.now();
+    for(let attempt = 0; attempt < 3; attempt++) {
+      // Contents API 用文件 SHA 校验，评分无需逐个创建 Git 树和提交。
+      const file = await this.request('/contents/menu.json?ref=main');
+      let data;
+      try {
+        const bytes = Uint8Array.from(atob(file.content.replace(/\s/g,'')),char=>char.charCodeAt(0));
+        data = JSON.parse(new TextDecoder().decode(bytes));
+      } catch { throw new StoreError('共享菜单格式不正确，请稍后刷新',502); }
+      validateMenu(data);
+      const dish = data.dishes.find(item=>item.id === value.id);
+      if(!dish) throw new StoreError('这项内容已经不存在，请刷新',409);
+      if(dish.version !== expectedVersion) throw new StoreError('这项内容刚被另一边更新，请刷新后再操作',409);
+      if(dish.rating === value.rating) return data;
+      const result = {...data,dishes:data.dishes.map(item=>item.id === value.id ? {...item,rating:value.rating,version,updatedAt:now} : item)};
+      const bytes = new TextEncoder().encode(JSON.stringify(result,null,2));
+      let binary = '';
+      for(const byte of bytes) binary += String.fromCharCode(byte);
+      try {
+        await this.request('/contents/menu.json',{method:'PUT',body:{message:`给${dish.name}评了 ${value.rating} 星`,branch:'main',sha:file.sha,content:btoa(binary)}});
+        return result;
+      } catch(error) { if(![409,422].includes(error.status) || attempt === 2) throw error; }
+    }
+  }
+
 }
