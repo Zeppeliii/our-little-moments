@@ -1,4 +1,4 @@
-import {enter,pulse,revealCards,heartAt,celebrate} from './motion.js?v=motion-20261028-1';
+import {enter,pulse,revealCards,heartAt,celebrate} from './motion.js?v=entrance-20261028-1';
 import {sameOrderDraft} from './menu-order.js';
 import {WORKER_URL} from './site-config.js?v=netlify-1';
 import {MENU_CATEGORIES,ORDER_STATUSES,validateMenu} from './menu-model.js?v=menu-1';

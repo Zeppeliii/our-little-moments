@@ -92,3 +92,11 @@ dialog[open]::backdrop{animation:gentle-backdrop .2s both}
 #series-title{display:inline-block}
 
 @media(hover:none){.memory-card:hover{transform:none;box-shadow:none}}
+
+/* 彩色 Kitty 聚在中央，再向四面八方散开；只使用位移、旋转和透明度。 */
+.site-entrance{position:fixed;inset:0;z-index:80;overflow:hidden;pointer-events:none}
+.entrance-glow{position:absolute;inset:0;background:radial-gradient(ellipse at center,#ffe9ec 0%,#fff8ee 65%,#fffdf8 100%)}
+.entrance-kitties{position:absolute;left:50%;top:50%;width:0;height:0}
+.entrance-kitty{position:absolute;left:0;top:0;display:block;height:auto;max-width:none;object-fit:contain;filter:saturate(1.08) drop-shadow(0 3px 0 #ffffffb3)}
+@media(max-height:580px){.entrance-kitties{scale:.8}}
+@media(prefers-reduced-motion:reduce){.site-entrance{display:none}}

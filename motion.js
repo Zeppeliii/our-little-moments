@@ -56,6 +56,64 @@ export function celebrate(element) {
   [-28,0,28].forEach(offset => heartAt({left:rect.left+rect.width/2+offset,top:rect.top+24,width:0}));
   pulse(element);
 }
+// 彩色 Kitty 从中央向四周散开，仅在打开新文档时播放。
+async function welcome() {
+  if(reducedMotion.matches || !document.body) return;
+  const poses = ['classic','melody','hibiscus','hula','teddy','parasol','surf','leap','flower','summer','fan','friends'];
+  await Promise.all(poses.map(async pose => {
+    const image = new Image();
+    image.src = `entrance-art/kitty-${pose}.png`;
+    try { await image.decode(); } catch { /* 图片缺失时不阻碍页面打开。 */ }
+  }));
+  if(reducedMotion.matches) return;
+  const entrance = document.createElement('div');
+  entrance.className = 'site-entrance'; entrance.setAttribute('aria-hidden','true');
+  entrance.innerHTML = '<div class="entrance-glow"></div><div class="entrance-kitties"></div>';
+  const group = entrance.querySelector('.entrance-kitties');
+  const count = poses.length;
+  const cleanup = () => { clearTimeout(fallback); entrance.remove(); };
+  const fallback = setTimeout(cleanup,2200);
+  document.body.append(entrance);
+  play(group,[{opacity:0,transform:'scale(.94)'},{opacity:1,transform:'scale(1)'}],{duration:320,fill:'backwards'});
+  for(let i = 0; i < count; i++) {
+    const kitty = document.createElement('img');
+    kitty.src = `entrance-art/kitty-${poses[i%poses.length]}.png`;
+    kitty.alt = ''; kitty.className = 'entrance-kitty';
+    // 手机三列四行均匀分布，宽屏四列三行；每个形象只出现一次。
+    const columns = innerWidth > 600 ? 4 : 3;
+    const rows = Math.ceil(count/columns);
+    const x = (i%columns-(columns-1)/2)*Math.min(innerWidth*.28,168);
+    const y = (Math.floor(i/columns)-(rows-1)/2)*Math.min(innerHeight*.22,185);
+    const angle = Math.atan2(y,x);
+    const rotation = (i%3-1)*5;
+    const size = Math.min(innerWidth*.31,155);
+    kitty.style.width = `${size}px`;
+    kitty.style.height = `${Math.min(innerHeight*.205,160)}px`;
+    const initial = `translate(-50%,-50%) translate(${x}px,${y}px) rotate(${rotation}deg)`;
+    kitty.style.transform = initial;
+    group.append(kitty);
+    const reach = Math.hypot(innerWidth,innerHeight)*.72+140;
+    const bend = (i%2 ? 1 : -1)*Math.min(innerWidth*.15,80);
+    const midX = x+Math.cos(angle)*reach*.38-Math.sin(angle)*bend;
+    const midY = y+Math.sin(angle)*reach*.38+Math.cos(angle)*bend;
+    const animation = play(kitty,[
+      {opacity:1,transform:initial,offset:0},
+      {opacity:1,transform:`translate(-50%,-50%) translate(${x*.92}px,${y*.92}px) rotate(${rotation-3}deg) scale(1.025)`,offset:.16,easing:'cubic-bezier(.45,0,.55,1)'},
+      {opacity:1,transform:`translate(-50%,-50%) translate(${midX}px,${midY}px) rotate(${rotation+(i%2 ? 12 : -12)}deg) scale(.98)`,offset:.62,easing:'cubic-bezier(.2,.55,.35,1)'},
+      {opacity:0,transform:`translate(-50%,-50%) translate(${Math.cos(angle)*reach}px,${Math.sin(angle)*reach}px) rotate(${rotation+(i%2 ? 28 : -28)}deg) scale(.86)`,offset:1}
+    ],{delay:320+(i%4)*45,duration:1400,easing:'ease-in-out',fill:'forwards'});
+    if(!animation) { cleanup(); return; }
+    animation.addEventListener('cancel',cleanup,{once:true});
+  }
+  const fade = play(entrance.querySelector('.entrance-glow'),[{opacity:1},{opacity:0}],{delay:650,duration:1000,fill:'forwards'});
+  if(!fade) cleanup();
+  else fade.addEventListener('cancel',cleanup,{once:true});
+  const finalKitty = group.lastElementChild;
+  // 最迟一只离开后立即清理，不留下不可见的全屏图层。
+  const done = play(finalKitty,[{},{}],{duration:1900});
+  if(done) done.addEventListener('finish',cleanup,{once:true});
+}
+welcome();
 reducedMotion.addEventListener('change',() => {
   if(!reducedMotion.matches) return;
   for(const animation of running) animation.cancel();
