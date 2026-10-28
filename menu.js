@@ -8,6 +8,15 @@ const icon = name => `<svg class="icon" aria-hidden="true"><use href="#icon-${na
 let data = {version:1,dishes:[],orders:[]}, ready = false, reading = false, busy = false, photoBusy = false;
 let category = '全部', mode = 'home', view = 'choose', orderFilter = 'active', managing = false;
 let cart = new Map(), dishId = null, dishVersion = null, dishPhoto = '', homeOrderId = null, outsideOrderId = null;
+const categoryIcons = {
+  '全部':'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  '荤菜':'<path d="M10 14c-3-3-2-7 1-9s7-1 8 1c2 3 1 6-2 8-2 1-4 1-5 0l-4 4a2 2 0 1 1-3 3 2 2 0 1 1-2-3l5-5"/>',
+  '素菜':'<path d="M20 3C10 2 3 6 4 13c1 7 9 8 13 3 3-4 3-8 3-13ZM4 21 16 8"/>',
+  '主食':'<path d="M3 11h18c0 6-4 9-9 9s-9-3-9-9Zm5 10h8M8 7V3m4 4V2m4 5V3"/>',
+  '汤羹':'<path d="M3 12h18c0 5-4 8-9 8s-9-3-9-8Zm5 9h8M8 8c-3-2 3-3 0-5m8 5c-3-2 3-3 0-5"/>',
+  '小吃甜品':'<path d="m6 11 2 10h8l2-10ZM5 11h14M7 11a4 4 0 0 1 2-7 3 3 0 0 1 6 0 4 4 0 0 1 2 7M10 14v4m4-4v4"/>',
+};
+const categoryIcon = name => name === '酒水饮品' ? icon('drink') : `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${categoryIcons[name]}</svg>`;
 let lastRead = 0;
 let feedbackTimer;
 const mobileMenu = matchMedia('(max-width:580px)');
@@ -83,7 +92,7 @@ async function change(action,value,expectedVersion = null) {
 function render() {
   const categories = MENU_CATEGORIES.filter(name => data.dishes.some(dish => dish.category === name));
   if(ready && category !== '全部' && !categories.includes(category)) category = '全部';
-  $('#dish-categories').innerHTML = ['全部',...categories].map(name => `<button type="button" data-menu-category="${name}" aria-pressed="${category === name}">${name}</button>`).join('');
+  $('#dish-categories').innerHTML = ['全部',...categories].map(name => `<button type="button" data-menu-category="${name}" aria-pressed="${category === name}">${categoryIcon(name)}<span>${name}</span></button>`).join('');
   const dishes = data.dishes.filter(dish => category === '全部' || dish.category === category).sort((a,b) => b.createdAt-a.createdAt);
   $('#dish-list').innerHTML = !ready ? '<div class="menu-empty"><h3>菜单还没打开</h3><p>正在连接，或点击上方“刷新菜单”再试一次。</p></div>' : !dishes.length ? `<div class="menu-empty">${icon('utensils')}<h3>${data.dishes.length ? '这一页还没有菜品' : '我们的小餐厅，等你来开张'}</h3><p>把拿手菜、喜欢的小吃和饮品收进来，<br>以后想吃什么，就在这里点。</p><button type="button" class="outline" data-add-dish>添加${category === '全部' ? '第一道菜' : category}</button></div>` : dishes.map(dish => `<article class="dish-card"><div class="dish-picture">${dish.photo ? `<img src="${escapeHTML(dish.photo)}" alt="${escapeHTML(dish.name)}" loading="lazy">` : `<span class="dish-placeholder">${icon(dish.category === '酒水饮品' ? 'drink' : 'utensils')}</span>`}<span class="dish-category">${dish.category}</span></div><div class="dish-content"><h3>${escapeHTML(dish.name)}</h3><p>${escapeHTML(dish.description || '')}</p>${ratingStars(dish)}<div class="dish-bottom">${cart.get(dish.id) ? `<div class="quantity"><button type="button" data-cart-step="-1" data-dish-id="${dish.id}" aria-label="减少${escapeHTML(dish.name)}的份数">${icon('minus')}</button><b>${cart.get(dish.id)}</b><button type="button" data-cart-step="1" data-dish-id="${dish.id}" aria-label="增加${escapeHTML(dish.name)}的份数">${icon('plus')}</button></div>` : `<button type="button" class="dish-select" data-add-to-cart="${dish.id}" aria-label="点一份${escapeHTML(dish.name)}">${icon('plus')}<span>点一份</span></button>`}</div>${managing ? `<div class="dish-manage-actions"><button type="button" data-edit-dish="${dish.id}">编辑</button><button type="button" data-delete-dish="${dish.id}">下架</button></div>` : ''}</div></article>`).join('');
   renderCart(); renderOrders(); renderRanking(); setBusy(busy);

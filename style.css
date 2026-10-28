@@ -66,3 +66,7 @@ button.card-picture{width:100%;padding:0;border:0;border-radius:0;color:var(--pi
 /* 每颗星左右两侧分别对应半星、整星，保持五颗星的简洁外观。 */
 .rating-cell{position:relative;display:block;width:27px;height:40px;flex-shrink:0}.rating-outline,.rating-fill{position:absolute;left:0;top:0;height:40px;display:flex;align-items:center;pointer-events:none}.rating-outline{width:100%;color:#ddcaba}.rating-fill{overflow:hidden;color:#cd9851}.rating-cell .icon{width:20px;height:20px;margin-left:3px;flex-shrink:0;stroke-width:1.7}.rating-fill .icon{fill:#edc46f;stroke:#cd9851}.rating-half{position:absolute;top:0;bottom:0;width:50%;min-width:0;padding:0;border:0;background:transparent;border-radius:3px}.rating-half-0{left:0}.rating-half-1{right:0}.rating-half:focus-visible{outline:2px solid #c98d48;outline-offset:1px}.rating-cell:has(.rating-half:focus-visible){background:#f9eedc}.rating-half:disabled{cursor:wait}
 @media(max-width:370px){.rating-cell{width:25px}.rating-cell .icon{width:19px;height:19px}}
+
+/* 分类图标沿用菜单的单色线条，随选中态一起变色。 */
+.dish-categories button{display:inline-flex;align-items:center;justify-content:center;gap:6px}.dish-categories button>.icon{width:16px;height:16px;flex-shrink:0;stroke-width:1.7}
+@media(max-width:580px){.dish-categories{gap:3px}.dish-categories button{gap:4px;padding-left:8px;padding-right:8px}.dish-categories button>.icon{width:15px;height:15px}}
