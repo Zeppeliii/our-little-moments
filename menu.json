@@ -167,6 +167,16 @@
       "createdAt": 1793173683100,
       "version": "90531c6f-088c-462a-a1e3-c1bc1b21f376",
       "rating": 0
+    },
+    {
+      "id": "c1a39b27-fc00-4384-8da5-d507b5df2b53",
+      "name": "干捏酸奶",
+      "category": "零食",
+      "description": "越干越好吃！",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/c1a39b27-fc00-4384-8da5-d507b5df2b53/4f3a9cfd-4772-4a23-a2f5-fb4b9410f8d8.jpg",
+      "createdAt": 1793173871802,
+      "version": "ac4ac25e-7d37-4d96-93ff-6d5875b4e344",
+      "rating": 0
     }
   ],
   "orders": []
