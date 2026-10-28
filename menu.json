@@ -127,6 +127,16 @@
       "createdAt": 1793131200000,
       "version": "2b7e8c0f-89f0-4738-86ea-a27d15ec4907",
       "updatedAt": 1793170124788
+    },
+    {
+      "id": "0b0e2ac3-b8b6-44b1-8e34-c283051e445d",
+      "name": "香芹炒鸡胸肉",
+      "category": "荤菜",
+      "description": "超健康 超低脂！！！！！！！！！！！！！！",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/0b0e2ac3-b8b6-44b1-8e34-c283051e445d/36030d86-f015-46a5-8524-cecbd023dc9c.jpg",
+      "createdAt": 1793171005385,
+      "version": "1504e64a-7350-41cf-a19a-458991e665c2",
+      "rating": 0
     }
   ],
   "orders": []
