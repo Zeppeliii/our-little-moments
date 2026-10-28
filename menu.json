@@ -157,6 +157,16 @@
       "createdAt": 1793173256106,
       "version": "cfbc6c4c-cddb-4099-ac12-e85708f7e6d0",
       "rating": 0
+    },
+    {
+      "id": "5ce2a08e-2b5d-439d-b90e-8825cacc3307",
+      "name": "乐事青柠味",
+      "category": "零食",
+      "description": "青柠的也要占一个",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/5ce2a08e-2b5d-439d-b90e-8825cacc3307/c2954797-6cde-448e-8a7b-20c71754d340.jpg",
+      "createdAt": 1793173683100,
+      "version": "90531c6f-088c-462a-a1e3-c1bc1b21f376",
+      "rating": 0
     }
   ],
   "orders": []
