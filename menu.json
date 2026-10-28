@@ -207,23 +207,6 @@
   ],
   "orders": [
     {
-      "id": "10bbc167-272d-45c8-8b57-e34a0ef37abd",
-      "mode": "home",
-      "who": "小安昙",
-      "restaurant": "",
-      "items": [
-        {
-          "dishId": "cf3a6c44-47f7-47e7-a58a-6e11a085f3ac",
-          "name": "食验室薯片",
-          "quantity": 1
-        }
-      ],
-      "note": "周五晚上看电影吃",
-      "status": "pending",
-      "createdAt": 1793179590494,
-      "version": "79d684e0-98fa-46e6-b303-10a2cd6c3b16"
-    },
-    {
       "id": "7a1e72fc-1c65-45ae-876e-4c195b3432c3",
       "mode": "outside",
       "who": "小安昙",
@@ -258,6 +241,24 @@
       "createdAt": 1793179547939,
       "version": "00794358-19fb-40a8-bb9b-4ad49d5bd3b8",
       "updatedAt": 1793182328573
+    },
+    {
+      "id": "10bbc167-272d-45c8-8b57-e34a0ef37abd",
+      "mode": "home",
+      "who": "小安昙",
+      "restaurant": "",
+      "items": [
+        {
+          "dishId": "cf3a6c44-47f7-47e7-a58a-6e11a085f3ac",
+          "name": "食验室薯片",
+          "quantity": 1
+        }
+      ],
+      "note": "周五晚上看电影吃",
+      "status": "accepted",
+      "createdAt": 1793179590494,
+      "version": "1e090240-d76e-4d37-9837-59239ec25663",
+      "updatedAt": 1793182332235
     }
   ]
 }
