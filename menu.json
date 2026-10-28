@@ -118,10 +118,10 @@
       "category": "荤菜",
       "description": "彩椒的清甜，配上嫩嫩的牛肉。",
       "photo": "menu-art/pepper-beef.svg",
-      "rating": 4.5,
+      "rating": 5,
       "createdAt": 1793131200000,
-      "version": "304f418b-26a6-4a89-8aa9-e1169ebf6293",
-      "updatedAt": 1793170122586
+      "version": "2b7e8c0f-89f0-4738-86ea-a27d15ec4907",
+      "updatedAt": 1793170124788
     }
   ],
   "orders": []
