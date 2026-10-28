@@ -204,5 +204,23 @@
       "rating": 0
     }
   ],
-  "orders": []
+  "orders": [
+    {
+      "id": "7a1e72fc-1c65-45ae-876e-4c195b3432c3",
+      "mode": "outside",
+      "who": "小安昙",
+      "restaurant": "小真芝食铺·豆花糖水芝麻糊小吃(三利广场店)",
+      "items": [
+        {
+          "dishId": null,
+          "name": "黑芝麻糊/黑芝麻豆花",
+          "quantity": 1
+        }
+      ],
+      "note": "周五晚上想吃",
+      "status": "pending",
+      "createdAt": 1793177673864,
+      "version": "e5f12116-6fa5-4faf-b02d-2a0e8f8f45a2"
+    }
+  ]
 }
