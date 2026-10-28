@@ -62,7 +62,7 @@ async function welcome() {
   const poses = ['classic','melody','hibiscus','hula','teddy','parasol','surf','leap','flower','summer','fan','friends'];
   await Promise.all(poses.map(async pose => {
     const image = new Image();
-    image.src = `entrance-art/kitty-${pose}.png?v=heart-20261028-2`;
+    image.src = `entrance-art/kitty-${pose}.png?v=polish-20261028-1`;
     try { await image.decode(); } catch { /* 图片缺失时不阻碍页面打开。 */ }
   }));
   if(reducedMotion.matches) return;
@@ -72,23 +72,25 @@ async function welcome() {
   const group = entrance.querySelector('.entrance-kitties');
   const count = poses.length;
   const cleanup = () => { clearTimeout(fallback); entrance.remove(); };
-  const fallback = setTimeout(cleanup,2200);
+  const fallback = setTimeout(cleanup,3400);
   document.body.append(entrance);
-  play(group,[{opacity:0,transform:'scale(.94)'},{opacity:1,transform:'scale(1)'}],{duration:320,fill:'backwards'});
+  play(group,[{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],{duration:420,fill:'backwards'});
   for(let i = 0; i < count; i++) {
     const kitty = document.createElement('img');
-    kitty.src = `entrance-art/kitty-${poses[i%poses.length]}.png?v=heart-20261028-2`;
+    kitty.src = `entrance-art/kitty-${poses[i%poses.length]}.png?v=polish-20261028-1`;
     kitty.alt = ''; kitty.className = 'entrance-kitty';
     // 十二个不同形象沿爱心外围排列，顶部留出心形凹口、中间留白。
-    const outline = [[0,-.45],[.55,-.95],[1,-.52],[1,-.15],[.78,.35],[.42,.74],[0,1.08],[-.42,.74],[-.78,.35],[-1,-.15],[-1,-.52],[-.55,-.95]];
+    const outline = [[0,-.45],[.55,-1.08],[1.02,-.61],[1.02,-.02],[.84,.48],[.48,.91],[0,1.24],[-.48,.91],[-.84,.48],[-1.02,-.02],[-1.02,-.61],[-.55,-1.08]];
     const [pointX,pointY] = outline[i];
     const x = pointX*Math.min(innerWidth*.35,250);
-    const y = pointY*Math.min(innerHeight*.30,240);
+    const y = pointY*Math.min(innerHeight*.31,240);
     const angle = Math.atan2(y,x);
     const rotation = (i%3-1)*5;
-    const size = Math.min(innerWidth*.23,125);
+    // 侧边贴纸稍收小，矮屏也留出角色之间的间距。
+    const sizeScale = ['summer','fan','parasol','teddy'].includes(poses[i]) ? .92 : 1;
+    const size = Math.min(innerWidth*.23,innerHeight*.18,125)*sizeScale;
     kitty.style.width = `${size}px`;
-    kitty.style.height = `${Math.min(innerWidth*.25,135)}px`;
+    kitty.style.height = `${size*1.08}px`;
     const initial = `translate(-50%,-50%) translate(${x}px,${y}px) rotate(${rotation}deg)`;
     kitty.style.transform = initial;
     group.append(kitty);
@@ -98,20 +100,20 @@ async function welcome() {
     const midY = y+Math.sin(angle)*reach*.38+Math.cos(angle)*bend;
     const animation = play(kitty,[
       {opacity:1,transform:initial,offset:0},
-      {opacity:1,transform:`translate(-50%,-50%) translate(${x*.97}px,${y*.97}px) rotate(${rotation-3}deg) scale(1.01)`,offset:.16,easing:'cubic-bezier(.45,0,.55,1)'},
-      {opacity:1,transform:`translate(-50%,-50%) translate(${midX}px,${midY}px) rotate(${rotation+(i%2 ? 12 : -12)}deg) scale(.98)`,offset:.62,easing:'cubic-bezier(.2,.55,.35,1)'},
+      {opacity:1,transform:`translate(-50%,-50%) translate(${x*.99}px,${y*.99}px) rotate(${rotation-2}deg) scale(1.01)`,offset:.22,easing:'cubic-bezier(.45,0,.55,1)'},
+      {opacity:1,transform:`translate(-50%,-50%) translate(${midX}px,${midY}px) rotate(${rotation+(i%2 ? 12 : -12)}deg) scale(.98)`,offset:.68,easing:'cubic-bezier(.2,.55,.35,1)'},
       {opacity:0,transform:`translate(-50%,-50%) translate(${Math.cos(angle)*reach}px,${Math.sin(angle)*reach}px) rotate(${rotation+(i%2 ? 28 : -28)}deg) scale(.86)`,offset:1}
-    ],{delay:320+(i%4)*45,duration:1400,easing:'ease-in-out',fill:'forwards'});
+    ],{delay:480+(i%4)*60,duration:2100,easing:'ease-in-out',fill:'forwards'});
     if(!animation) { cleanup(); return; }
     animation.addEventListener('cancel',cleanup,{once:true});
   }
-  play(entrance.querySelector('.entrance-center'),[{opacity:0,transform:'translate(-50%,-45%) scale(.92)',offset:0},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.23},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.5},{opacity:0,transform:'translate(-50%,-50%) scale(1.06)',offset:1}],{duration:1550,fill:'forwards'});
-  const fade = play(entrance.querySelector('.entrance-glow'),[{opacity:1},{opacity:0}],{delay:650,duration:1000,fill:'forwards'});
+  play(entrance.querySelector('.entrance-center'),[{opacity:0,transform:'translate(-50%,-45%) scale(.92)',offset:0},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.23},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.5},{opacity:0,transform:'translate(-50%,-50%) scale(1.06)',offset:1}],{duration:2400,fill:'forwards'});
+  const fade = play(entrance.querySelector('.entrance-glow'),[{opacity:1},{opacity:0}],{delay:1050,duration:1550,fill:'forwards'});
   if(!fade) cleanup();
   else fade.addEventListener('cancel',cleanup,{once:true});
   const finalKitty = group.lastElementChild;
   // 最迟一只离开后立即清理，不留下不可见的全屏图层。
-  const done = play(finalKitty,[{},{}],{duration:1900});
+  const done = play(finalKitty,[{},{}],{duration:2950});
   if(done) done.addEventListener('finish',cleanup,{once:true});
 }
 welcome();

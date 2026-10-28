@@ -1,4 +1,4 @@
-import {enter,pulse,revealCards,heartAt,celebrate} from './motion.js?v=heart-20261028-2';
+import {enter,pulse,revealCards,heartAt,celebrate} from './motion.js?v=polish-20261028-1';
 import {sameOrderDraft} from './menu-order.js';
 import {readSnapshot,writeSnapshot} from './site-cache.js?v=speed-20261028-1';
 import {previewPhoto,restoreOriginalPhoto} from './photo-delivery.js?v=speed-20261028-1';
