@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 240">
+  <rect width="330" height="240" fill="#fff0e5"/>
+  <ellipse cx="165" cy="202" rx="96" ry="10" fill="#ac7c56" opacity=".08"/>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="m113 40 9 4 9-4 9 4 9-4 9 4 9-4 9 4 9-4 9 4 9-4 9 4 9-4-6 32 10 122-9-4-9 4-9-4-9 4-9-4-9 4-9-4-9 4-9-4-9 4-9-4-9 4 9-122Z" fill="#edb5ae" stroke="#b77c70" stroke-width="3"/>
+    <path d="M118 58h94M112 179h109" stroke="#ce9186" stroke-width="3"/>
+    <path d="m123 75-4 55m-1 12-1 13" stroke="#fff8f1" stroke-width="5" opacity=".6"/>
+    <rect x="128" y="72" width="76" height="39" rx="12" fill="#fff9ed"/>
+    <text x="166" y="98" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="21" font-weight="700" text-anchor="middle" fill="#916254">食验室</text>
+    <ellipse cx="165" cy="136" rx="22" ry="14" transform="rotate(-22 165 136)" fill="#f7d78e" stroke="#cda16a" stroke-width="2.5"/>
+    <path d="m152 132 7 14m1-18 8 15m1-18 7 13" stroke="#e1b973" stroke-width="2"/>
+    <text x="165" y="169" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#916254">薯片</text>
+    <g transform="rotate(-24 94 172)">
+      <ellipse cx="94" cy="172" rx="29" ry="21" fill="#f9dda0" stroke="#cda16a" stroke-width="3"/>
+      <path d="m79 160 2 21m7-26 2 31m7-32 2 32m7-27 2 23" stroke="#e7bf7d" stroke-width="2"/>
+    </g>
+    <g transform="rotate(20 229 183)">
+      <ellipse cx="229" cy="183" rx="27" ry="19" fill="#f8d58b" stroke="#cda16a" stroke-width="3"/>
+      <path d="m215 172 2 20m7-24 2 29m7-28 2 26m6-20 2 17" stroke="#e1b571" stroke-width="2"/>
+    </g>
+    <g fill="#80594d"><ellipse cx="151" cy="187" rx="2.2" ry="2.8"/><ellipse cx="179" cy="187" rx="2.2" ry="2.8"/></g>
+    <path d="m161 190q4 4 8 0" stroke="#80594d" stroke-width="2" fill="none"/>
+    <path d="m240 89 6-10m4 18 11-3" stroke="#d4a884" stroke-width="3"/>
+  </g>
+  <g fill="#e9aa9c" opacity=".7"><circle cx="60" cy="80" r="4"/><circle cx="279" cy="165" r="3"/></g>
+  <path d="m265 53 2-7 2 7 7 2-7 2-2 7-2-7-7-2Z" fill="#e9ca89"/>
+</svg>
