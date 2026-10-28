@@ -177,6 +177,16 @@
       "createdAt": 1793173871802,
       "version": "ac4ac25e-7d37-4d96-93ff-6d5875b4e344",
       "rating": 0
+    },
+    {
+      "id": "b399b73b-db89-4667-b0bb-17aa636c66fe",
+      "name": "格力高百醇",
+      "category": "零食",
+      "description": "巧克力的坠好吃",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/b399b73b-db89-4667-b0bb-17aa636c66fe/b578ae76-e2e6-4d14-88c0-f8583c7554ea.jpg",
+      "createdAt": 1793174964371,
+      "version": "a00658b3-0490-4e91-865a-8f2c02c5f2d9",
+      "rating": 0
     }
   ],
   "orders": []
