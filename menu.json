@@ -149,16 +149,6 @@
       "rating": 0
     },
     {
-      "id": "8cc45634-407f-4c13-be1e-cfec2d896c89",
-      "name": "乐事罐装黄瓜味",
-      "category": "零食",
-      "description": "必须要吃罐装的！！！！",
-      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/8cc45634-407f-4c13-be1e-cfec2d896c89/90f23938-06ae-4c43-ad4d-674b5645bbe0.jpg",
-      "createdAt": 1793173256106,
-      "version": "cfbc6c4c-cddb-4099-ac12-e85708f7e6d0",
-      "rating": 0
-    },
-    {
       "id": "c1a39b27-fc00-4384-8da5-d507b5df2b53",
       "name": "干捏酸奶",
       "category": "零食",
@@ -186,6 +176,16 @@
       "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/5ce2a08e-2b5d-439d-b90e-8825cacc3307/c2954797-6cde-448e-8a7b-20c71754d340.jpg",
       "createdAt": 1793173683100,
       "version": "9cb48380-8dad-4ded-9e9f-dee5254baee4",
+      "rating": 0
+    },
+    {
+      "id": "8cc45634-407f-4c13-be1e-cfec2d896c89",
+      "name": "乐事罐装黄瓜味",
+      "category": "零食",
+      "description": "必须要吃罐装的！！！！（注：薯片每次只能买一包）",
+      "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/8cc45634-407f-4c13-be1e-cfec2d896c89/90f23938-06ae-4c43-ad4d-674b5645bbe0.jpg",
+      "createdAt": 1793173256106,
+      "version": "869e5a83-a339-4dec-8027-7ba1f734100f",
       "rating": 0
     }
   ],
