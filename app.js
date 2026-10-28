@@ -15,6 +15,7 @@ let memories = [], selectedPhotos = [], editingId = null, activeFilter = '全部
 const store = new CloudStore();
 let ready = false, reading = false, saving = false, lastReadError = '', lastReadAt = 0, localMemories = [];
 let editingVersion = null, dataRevision = 0;
+let detailId = null, galleryPhotos = [], galleryIndex = 0, galleryTitle = '', photoMode = 'fit';
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3600); }
 function localDate() { const date = new Date(); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; }
@@ -43,7 +44,23 @@ async function refresh({quiet = false} = {}) {
     render();
   } finally { reading = false; $('#sync-refresh').disabled = false; }
 }
+function renderLoveDays() {
+  const section = $('#love-days');
+  const together = memories.filter(memory => memory.category === '纪念日' && /^(我们)?在一起(啦|了)?[！!。]*$/.test(memory.title.trim()) && validDate(memory.date) && memory.date <= localDate()).sort((a,b) => a.date.localeCompare(b.date))[0];
+  section.hidden = !ready || !together;
+  if (!together) return;
+  // 按日历日期计算，避免夏令时造成天数偏差；开始当天为第 1 天。
+  const today = Date.parse(localDate() + 'T00:00:00Z');
+  const start = Date.parse(together.date + 'T00:00:00Z');
+  const [startYear, month, day] = together.date.split('-').map(Number);
+  const anniversary = year => Date.UTC(year, month - 1, Math.min(day, new Date(Date.UTC(year, month, 0)).getUTCDate()));
+  let year = Math.max(new Date(today).getUTCFullYear(), startYear + 1);
+  if (anniversary(year) < today) year++;
+  const remaining = Math.round((anniversary(year) - today) / 86400000);
+  section.innerHTML = `<div class="love-days-copy"><span class="eyebrow">${icon('hearts')} 我们的日子</span><h2>在一起的第 <strong>${Math.floor((today-start)/86400000)+1}</strong> 天</h2><p>从 ${together.date.replaceAll('-', ' / ')} 开始，每一天都有你。</p></div><div class="anniversary-count"><img class="bow-icon" src="kitty-bow.png" alt=""><p>${remaining === 0 ? `今天是我们的 ${year-startYear} 周年纪念日` : `距离我们的 ${year-startYear} 周年还有 <strong>${remaining}</strong> 天`}</p><button type="button" class="text-button" data-detail="${escapeHTML(together.id)}">重温在一起的那一天 ${icon('arrow-up-right')}</button></div>`;
+}
 function render() {
+  renderLoveDays();
   $('#series-title').textContent = activeFilter === '全部' ? '我们的回忆' : activeFilter;
   $('#series-description').textContent = seriesDescriptions[activeFilter];
   document.querySelectorAll('[data-series-count]').forEach(element => {
@@ -69,12 +86,81 @@ function render() {
   visible.forEach(memory => {
     const nextMonth = memory.date.slice(0,7);
     if (month !== nextMonth) { if(month) html += '</div>'; month = nextMonth; html += `<h3 class="month-title">${icon('heart')}${month.slice(0,4)} 年 ${Number(month.slice(5))} 月 <span>属于我们的时光</span></h3><div class="cards">`; }
-    html += `<article class="memory-card"><div class="card-picture ${memory.photos.length ? '' : 'no-photo'}">${memory.photos.length ? `<img src="${escapeHTML(memory.photos[0])}" alt="${escapeHTML(memory.title)}" loading="lazy" data-view="${escapeHTML(memory.id)}"><span class="photo-badge">${memory.photos.length} 张照片</span>` : '<svg aria-hidden="true"><use href="#kitty"/></svg>'}</div><div class="card-content"><div class="card-meta"><time datetime="${memory.date}">${memory.date.replaceAll('-',' / ')}</time><span class="category">${categoryIcon(memory.category)}${categoryNames[memory.category]}</span></div><h3>${escapeHTML(memory.title)}</h3><p class="card-body">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p><div class="card-bottom"><span class="place">${memory.place ? icon('map-pin')+' '+escapeHTML(memory.place) : icon('heart')+' 收藏了一份小幸福'}</span><div class="card-actions"><button data-edit="${escapeHTML(memory.id)}">查看 / 编辑</button><button data-delete="${escapeHTML(memory.id)}" aria-label="删除${escapeHTML(memory.title)}">删除</button></div></div></div></article>`;
+    html += `<article class="memory-card" data-memory="${escapeHTML(memory.id)}"><button type="button" class="card-picture ${memory.photos.length ? '' : 'no-photo'}" data-detail="${escapeHTML(memory.id)}" aria-label="查看${escapeHTML(memory.title)}的详情">${memory.photos.length ? `<img src="${escapeHTML(memory.photos[0])}" alt="${escapeHTML(memory.title)}" loading="lazy"><span class="photo-badge">${memory.photos.length} 张照片</span>` : '<svg aria-hidden="true"><use href="#kitty"/></svg>'}</button><div class="card-content"><div class="card-meta"><time datetime="${memory.date}">${memory.date.replaceAll('-',' / ')}</time><span class="category">${categoryIcon(memory.category)}${categoryNames[memory.category]}</span></div><h3><button type="button" class="card-title" data-detail="${escapeHTML(memory.id)}">${escapeHTML(memory.title)}</button></h3><p class="card-body">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p><div class="card-bottom"><span class="place">${memory.place ? icon('map-pin')+' '+escapeHTML(memory.place) : icon('heart')+' 收藏了一份小幸福'}</span><div class="card-actions"><button type="button" data-detail="${escapeHTML(memory.id)}">重温回忆 ${icon('arrow-up-right')}</button></div></div></div></article>`;
   }); list.innerHTML = html + '</div>';
 }
 function renderPreviews() { $('#photo-preview').innerHTML = selectedPhotos.map((photo,index) => `<div class="preview-item"><img src="${escapeHTML(photo)}" alt="回忆照片 ${index+1}" data-preview="${index}"><button type="button" data-remove="${index}" aria-label="移除第 ${index+1} 张照片">${icon('x')}</button></div>`).join(''); }
 function openEditor(id) { if(saving) return toast('正在保存回忆，请稍后再试'); if(id && !ready) return toast(lastReadError || '正在读取这条回忆，请稍后重试'); const memory = memories.find(item => item.id === id); editingId = memory?.id || null; editingVersion = memory?.version || null; $('#memory-form').reset(); $('#event-title').value = memory?.title || ''; $('#event-date').value = memory?.date || localDate(); $('#event-category').value = memory?.category || newMemoryCategory(activeFilter); $('#event-body').value = memory?.body || ''; $('#event-place').value = memory?.place || ''; selectedPhotos = [...(memory?.photos || [])]; $('#editor-title').innerHTML = `${memory ? '重温这件小事' : '记一件小事'} <span class="pink">${icon('heart')}</span>`; renderPreviews(); $('#save-status').hidden = true; $('#editor').showModal(); }
-function showPhoto(photo) { $('#viewer-image').src = photo; $('#viewer').showModal(); }
+function openDetail(id) {
+  const memory = memories.find(item => item.id === id);
+  if (!memory) return;
+  detailId = id;
+  $('#detail-content').innerHTML = `<div class="modal-head"><div><div class="eyebrow">${categoryIcon(memory.category)} ${categoryNames[memory.category]}</div><h2 id="detail-title">${escapeHTML(memory.title)}</h2><p class="detail-meta">${memory.date.replaceAll('-',' / ')}${memory.place ? ` · ${escapeHTML(memory.place)}` : ''}</p></div><button type="button" class="icon-btn" id="detail-close" aria-label="关闭回忆详情">${icon('x')}</button></div><p class="detail-story">${escapeHTML(memory.body || '那天有你，就是一件值得记住的小事。')}</p>${memory.photos.length ? `<div class="detail-album-heading"><h3>那天的照片</h3><span>${memory.photos.length} 张 · 点开慢慢看</span></div><div class="detail-photos">${memory.photos.map((photo,index) => `<button type="button" data-gallery-index="${index}" aria-label="查看第 ${index+1} 张照片"><img src="${escapeHTML(photo)}" alt="${escapeHTML(memory.title)}，第 ${index+1} 张照片" loading="lazy"><span>${index+1} / ${memory.photos.length}</span></button>`).join('')}</div>` : ''}<div class="detail-footer"><span>把这一刻，好好收藏。</span><details class="memory-more"><summary>更多操作</summary><div><button type="button" data-detail-edit>编辑回忆</button><button type="button" data-delete="${escapeHTML(memory.id)}">删除回忆</button></div></details></div>`;
+  if (!$('#memory-detail').open) $('#memory-detail').showModal();
+  $('#memory-detail').scrollTop = 0;
+}
+function setPhotoMode(mode) {
+  photoMode = mode;
+  $('#viewer-stage').dataset.mode = mode;
+  $('#viewer-stage').scrollTo(0,0);
+  document.querySelectorAll('[data-photo-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.photoMode === mode)));
+  $('#viewer-hint').textContent = mode === 'fit' ? (galleryPhotos.length > 1 ? '左右滑动切换照片' : '收藏这一刻') : '上下滚动阅读 · 可用按钮切换照片';
+}
+function renderPhoto() {
+  const image = $('#viewer-image');
+  image.hidden = true;
+  $('#viewer-error').hidden = true;
+  $('#viewer-count').textContent = `${galleryIndex+1} / ${galleryPhotos.length}`;
+  $('#viewer-title').textContent = galleryTitle;
+  $('#viewer-prev').disabled = galleryIndex === 0;
+  $('#viewer-next').disabled = galleryIndex === galleryPhotos.length-1;
+  setPhotoMode('fit');
+  image.alt = `${galleryTitle}，第 ${galleryIndex+1} 张照片`;
+  image.src = galleryPhotos[galleryIndex];
+}
+function showPhoto(photos, index = 0, title = '回忆相册') {
+  if (!photos.length) return;
+  galleryPhotos = [...photos]; galleryIndex = index; galleryTitle = title;
+  if (!$('#viewer').open) $('#viewer').showModal();
+  renderPhoto();
+}
+function stepPhoto(step) {
+  const next = galleryIndex + step;
+  if (next >= 0 && next < galleryPhotos.length) { galleryIndex = next; renderPhoto(); }
+}
+$('#viewer-image').addEventListener('load', () => {
+  $('#viewer-image').hidden = false;
+  setPhotoMode($('#viewer-image').naturalHeight > $('#viewer-image').naturalWidth * 1.8 ? 'read' : 'fit');
+});
+$('#viewer-image').addEventListener('error', () => { $('#viewer-error').hidden = false; });
+$('#viewer-prev').addEventListener('click', () => stepPhoto(-1));
+$('#viewer-next').addEventListener('click', () => stepPhoto(1));
+$('#viewer').addEventListener('click', event => {
+  const mode = event.target.closest('[data-photo-mode]');
+  if (mode) setPhotoMode(mode.dataset.photoMode);
+});
+$('#viewer').addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); stepPhoto(event.key === 'ArrowLeft' ? -1 : 1); }
+});
+let swipeStart = null;
+$('#viewer-stage').addEventListener('touchstart', event => {
+  swipeStart = event.touches.length === 1 && photoMode === 'fit' ? {x:event.touches[0].clientX,y:event.touches[0].clientY} : null;
+}, {passive:true});
+$('#viewer-stage').addEventListener('touchend', event => {
+  if (!swipeStart || event.changedTouches.length !== 1) return;
+  const dx = event.changedTouches[0].clientX - swipeStart.x, dy = event.changedTouches[0].clientY - swipeStart.y;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5) stepPhoto(dx < 0 ? 1 : -1);
+  swipeStart = null;
+}, {passive:true});
+$('#viewer-stage').addEventListener('touchcancel', () => { swipeStart = null; }, {passive:true});
+$('#memory-detail').addEventListener('click', event => {
+  if (event.target.closest('#detail-close')) $('#memory-detail').close();
+  if (event.target.closest('[data-detail-edit]')) { $('#memory-detail').close(); openEditor(detailId); }
+  const photo = event.target.closest('[data-gallery-index]');
+  if (photo) { const memory = memories.find(item => item.id === detailId); if(memory) showPhoto(memory.photos, Number(photo.dataset.galleryIndex), memory.title); }
+  if (event.target.closest('[data-delete]')) { const memory = memories.find(item => item.id === detailId); if(memory) removeMemory(memory); }
+});
+$('#love-days').addEventListener('click', event => { const button = event.target.closest('[data-detail]'); if (button) openDetail(button.dataset.detail); });
 async function preparePhoto(file) { if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) throw new Error('请选择 JPG、PNG、WebP 或 GIF 图片'); if(file.size > 30*1024*1024) throw new Error('单张照片请小于 30 MB'); const source = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); return new Promise((resolve,reject) => { const image = new Image(); image.onload = () => { const scale = Math.min(1,1600/Math.max(image.width,image.height)); const canvas = document.createElement('canvas'); canvas.width = Math.max(1,Math.round(image.width*scale)); canvas.height = Math.max(1,Math.round(image.height*scale)); const context = canvas.getContext('2d'); context.fillStyle = '#fff'; context.fillRect(0,0,canvas.width,canvas.height); context.drawImage(image,0,0,canvas.width,canvas.height); let photo = canvas.toDataURL('image/jpeg',.8); if(photo.length > 950000) photo = canvas.toDataURL('image/jpeg',.6); resolve(photo); }; image.onerror = () => reject(new Error('这张照片无法读取，请换一张试试')); image.src = source; }); }
 ['#top-add','#hero-add','#section-add'].forEach(selector => $(selector).addEventListener('click', () => openEditor()));
 ['#editor-close','#editor-cancel'].forEach(selector => $(selector).addEventListener('click', () => { if (!processingPhotos && !saving) $('#editor').close(); }));
@@ -83,7 +169,7 @@ $('#memories').addEventListener('click', event => { const button = event.target.
 let processingPhotos = false;
 $('#editor').addEventListener('cancel', event => { if(processingPhotos || saving) event.preventDefault(); });
 $('#event-photos').addEventListener('change',async event => { const files = [...event.target.files]; if(files.length+selectedPhotos.length > 12) { event.target.value = ''; return toast('每件回忆最多收藏 12 张照片'); } processingPhotos = true; event.target.disabled = true; $('#save-button').disabled = true; $('#save-button').textContent = '正在整理照片…'; try { const photos = await Promise.all(files.map(preparePhoto)); selectedPhotos.push(...photos); renderPreviews(); } catch(error) { toast(error.message || '照片读取失败，请重试'); } finally { event.target.value = ''; event.target.disabled = false; processingPhotos = false; $('#save-button').disabled = false; $('#save-button').innerHTML = `收藏这段回忆 ${icon('heart')}`; } });
-$('#photo-preview').addEventListener('click',event => { const remove = event.target.closest('[data-remove]'); if(remove) { selectedPhotos.splice(Number(remove.dataset.remove),1); renderPreviews(); } else if(event.target.dataset.preview !== undefined) showPhoto(selectedPhotos[Number(event.target.dataset.preview)]); });
+$('#photo-preview').addEventListener('click',event => { const remove = event.target.closest('[data-remove]'); if(remove) { selectedPhotos.splice(Number(remove.dataset.remove),1); renderPreviews(); } else if(event.target.dataset.preview !== undefined) showPhoto(selectedPhotos, Number(event.target.dataset.preview), $('#event-title').value || '回忆相册'); });
 $('#memory-form').addEventListener('submit', async event => {
   event.preventDefault(); if(processingPhotos || saving) return;
   const title = $('#event-title').value.trim(); const date = $('#event-date').value;
@@ -109,16 +195,18 @@ async function removeMemory(memory) {
   if(saving) return;
   if(!confirm(`确定从共享手账移除「${memory.title}」吗？两边将不再显示这条回忆。公开过的文件仍可能保留在 GitHub 历史版本中。`)) return;
   saving = true; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = true);
-  try { const data = await store.remove(memory.id,memory.version); dataRevision++; memories = data.memories; render(); updateLocalMigration(); toast('已从共享手账移除'); }
+  try { const data = await store.remove(memory.id,memory.version); dataRevision++; memories = data.memories; render(); updateLocalMigration(); if(detailId === memory.id) $('#memory-detail').close(); toast('已从共享手账移除'); }
   catch(error) { toast(error.message); }
   finally { saving = false; document.querySelectorAll('[data-delete]').forEach(button => button.disabled = false); }
 }
 $('#memory-list').addEventListener('click',event => {
-  const edit = event.target.closest('[data-edit]'); const remove = event.target.closest('[data-delete]'); const view = event.target.closest('[data-view]');
-  if(edit) openEditor(edit.dataset.edit);
-  if(view) { const memory = memories.find(m => m.id === view.dataset.view); showPhoto(memory.photos[0]); }
-  if(remove) { const memory = memories.find(m => m.id === remove.dataset.delete); removeMemory(memory); }
+  const card = event.target.closest('[data-memory]');
+  if(card) openDetail(card.dataset.memory);
 });
+$('#memory-list').addEventListener('load', event => {
+  const image = event.target;
+  if (image.matches('.card-picture img') && image.naturalHeight > image.naturalWidth * 1.8) image.classList.add('long-preview');
+}, true);
 $('#sync-refresh').addEventListener('click', () => refresh());
 async function publishLocal() {
   if(!ready || saving) return;
@@ -144,5 +232,5 @@ async function readLocalMemories() {
 }
 function autoRefresh() { if(!document.hidden && !document.querySelector('dialog[open]') && Date.now()-lastReadAt > 15000) refresh({quiet:true}); }
 window.addEventListener('focus',autoRefresh);
-setInterval(autoRefresh,60000);
+setInterval(() => { autoRefresh(); if(ready) renderLoveDays(); },60000);
 render(); refresh(); readLocalMemories();
