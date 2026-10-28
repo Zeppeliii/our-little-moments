@@ -176,8 +176,9 @@
       "description": "必须要吃罐装的！！！！（注：薯片每次只能买一包）",
       "photo": "https://raw.githubusercontent.com/Zeppeliii/our-little-moments/main/data/menu-photos/8cc45634-407f-4c13-be1e-cfec2d896c89/90f23938-06ae-4c43-ad4d-674b5645bbe0.jpg",
       "createdAt": 1793173256106,
-      "version": "869e5a83-a339-4dec-8027-7ba1f734100f",
-      "rating": 0
+      "version": "2181bc48-077b-4efb-85d7-0fa4ca9677fe",
+      "rating": 5,
+      "updatedAt": 1793175381547
     },
     {
       "id": "cf3a6c44-47f7-47e7-a58a-6e11a085f3ac",
