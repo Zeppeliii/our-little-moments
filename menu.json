@@ -207,23 +207,6 @@
   ],
   "orders": [
     {
-      "id": "7a1e72fc-1c65-45ae-876e-4c195b3432c3",
-      "mode": "outside",
-      "who": "小安昙",
-      "restaurant": "小真芝食铺·豆花糖水芝麻糊小吃(三利广场店)",
-      "items": [
-        {
-          "dishId": null,
-          "name": "黑芝麻糊/黑芝麻豆花",
-          "quantity": 1
-        }
-      ],
-      "note": "周五晚上想吃",
-      "status": "pending",
-      "createdAt": 1793177673864,
-      "version": "e5f12116-6fa5-4faf-b02d-2a0e8f8f45a2"
-    },
-    {
       "id": "e0124902-d0cd-4710-9c08-fd79ac4d1b89",
       "mode": "home",
       "who": "小安昙",
@@ -256,6 +239,24 @@
       "status": "pending",
       "createdAt": 1793179590494,
       "version": "79d684e0-98fa-46e6-b303-10a2cd6c3b16"
+    },
+    {
+      "id": "7a1e72fc-1c65-45ae-876e-4c195b3432c3",
+      "mode": "outside",
+      "who": "小安昙",
+      "restaurant": "小真芝食铺·豆花糖水芝麻糊小吃(三利广场店)",
+      "items": [
+        {
+          "dishId": null,
+          "name": "黑芝麻糊/黑芝麻豆花",
+          "quantity": 1
+        }
+      ],
+      "note": "周五晚上想吃",
+      "status": "accepted",
+      "createdAt": 1793177673864,
+      "version": "16a3d556-6b3f-4317-a28d-73a3408b95e2",
+      "updatedAt": 1793182319803
     }
   ]
 }
