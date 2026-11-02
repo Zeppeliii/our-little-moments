@@ -255,10 +255,10 @@
         }
       ],
       "note": "周五晚上看电影吃",
-      "status": "accepted",
+      "status": "completed",
       "createdAt": 1793179590494,
-      "version": "1e090240-d76e-4d37-9837-59239ec25663",
-      "updatedAt": 1793182332235
+      "version": "aff3df0e-c4b8-4809-b3bc-75cf9bda9e43",
+      "updatedAt": 1793585842096
     }
   ]
 }
